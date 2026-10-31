@@ -9,6 +9,12 @@
     if (window.GAIA_40_STAGES?.length===40) {
         engine.levelsConfig.levels=window.GAIA_40_STAGES;
     }
+    // This build is a three-gimmick playtest, not the unbalanced 40-round tour.
+    // Keep all forty scene definitions and saved progress intact for later.
+    const prototypeScenes=['PARK_GOAL1','ROOM_REVEAL','CASINO_BET'];
+    const prototypeIndices=prototypeScenes.map(scene=>
+        engine.levelsConfig.levels.findIndex(level=>level.sceneKey===scene));
+    if(prototypeIndices.some(index=>index<0))throw new Error('Missing prototype stage');
 
     // Keep existing controls, paddle, powers and sound; use authored forty rounds.
     // selection with one readable paddle whose upgrades appear in play.
@@ -19,7 +25,7 @@
         {id:'electric',name:'전기 충격',description:'주변 블록까지 번개가 튑니다',icon:'⚡',color:'#82eaff',duration:8500,dropChance:.085,effect:'electric'},
         {id:'life',name:'하트 충전',description:'목숨을 하나 회복합니다',icon:'♥',color:'#ffa8c3',duration:0,dropChance:.025,effect:'life'}
     );
-    engine.loadLevel(0);
+    engine.loadLevel(prototypeIndices[0]);
     engine.state = 'menu';
     const renderer = new Renderer(engine);
     window.gaiaTestEngine = engine; // Accessible to local, non-network smoke tests.
@@ -37,7 +43,7 @@
     const dialogueKey = 'gaia-heart-breaker-dialogue-mode-v1';
     let dialogueMode='normal';
     try { if(localStorage.getItem(dialogueKey)==='hardcore') dialogueMode='hardcore'; } catch (_) {}
-    let stageDialogueShown=false,eventExpires=0,settingsWasPlaying=false,goalShowcase=false;
+    let stageDialogueShown=false,eventExpires=0,settingsWasPlaying=false,demoMode=false,prototypeTour=false;
     const triggerByScene={
         MART_BASIC:'solid',MART_JELLY:'jelly',MART_METAL:'metal',MART_BOMB:'bomb',MART_FINALE:'quickChain',
         PARK_GOAL1:'soccer',PARK_JELLY:'soccer',PARK_MOVING:'soccer',PARK_DEFENSE:'soccer',PARK_FINAL:'soccer',
@@ -197,27 +203,30 @@
     function show(id) { $(id).classList.remove('hidden'); }
     function hide(id) { $(id).classList.add('hidden'); }
     function mainMenu() {
-        goalShowcase=false;
+        demoMode=false;prototypeTour=false;
         window.GaiaSound?.stop();
         engine.resetGame();
-        engine.loadLevel(0);
+        engine.loadLevel(prototypeIndices[0]);
         engine.state = 'menu';
         clearStageEvent();
         oldState = 'menu';
         setStageVisuals();
         hide('pauseScreen'); hide('messageScreen');hide('dialogueScreen');hide('settingsScreen');show('menuScreen');
-        $('continueButton').hidden = !(progress.unlocked > 0);
+        // Old 40-round progress remains saved; it is intentionally not a
+        // playable path until its scene rules and difficulty are reviewed.
+        $('continueButton').hidden = true;
         $('reaction').textContent = '오늘은 살살 부탁드려요…♡';
         $('heroImage').src = faces.idle;
         $('heroImage').dataset.mode = 'idle';
     }
-    function begin(stage=0,showcase=false) {
-        goalShowcase=showcase;
+    function begin(stage=prototypeIndices[0],showcase=false,tour=false) {
+        demoMode=showcase;
+        prototypeTour=tour;
         engine.startGame();
         stageDialogueShown=false;
         clearStageEvent();
         pocketStock.heart=3; pocketStock.ice=3; pocketStock.bolt=3;
-        if (stage > 0) engine.loadLevel(stage);
+        engine.loadLevel(stage);
         engine.state = 'playing';
         engine.mouseX = engine.width/2;
         engine.usingKeyboard = false;
@@ -232,7 +241,7 @@
     function showResult(type) {
         const won=type==='victory',clear=type==='levelComplete';
         if (engine.score>progress.best) progress.best=engine.score;
-        if (clear && !goalShowcase) progress.unlocked=Math.max(progress.unlocked, Math.min(total-1,engine.currentLevel+1));
+        if (clear && !demoMode) progress.unlocked=Math.max(progress.unlocked, Math.min(total-1,engine.currentLevel+1));
         save();
         const title=won?'ALL CLEAR!':clear?'STAGE CLEAR!':'GAME OVER';
         $('resultIcon').textContent=won?'♛':clear?'♥':'♡';
@@ -242,7 +251,10 @@
         $('resultDescription').textContent=won&&lines?.extras?.length?
             `${lines.extras[0]}\n\n${conclusion}`:(clear?conclusion:won?conclusion:'다시 도전하시면 더 잘하실 거예요.');
         $('resultScore').textContent=engine.score.toLocaleString()+' PT';
-        $('resultButton').textContent=goalShowcase?'시범판 종료 · 메인으로':clear?'다음 스테이지 ▶':'다시 도전 ▶';
+        const indexInTour=prototypeIndices.indexOf(engine.currentLevel);
+        $('resultButton').textContent=prototypeTour?
+            (clear?(indexInTour===prototypeIndices.length-1?'3종 시범 종료 · 메인으로':'다음 기믹 ▶'):'이 기믹 다시 ▶'):
+            demoMode?'시범판 종료 · 메인으로':clear?'다음 스테이지 ▶':'다시 도전 ▶';
         hide('pauseScreen');show('messageScreen');
         const prototype=['PARK_GOAL1','ROOM_REVEAL','CASINO_BET'].includes(
             engine.levelsConfig.levels[engine.currentLevel]?.sceneKey);
@@ -275,7 +287,7 @@
         window.GaiaSound?.resume();
     }
 
-    $('startButton').addEventListener('click',()=>begin(0));
+    $('startButton').addEventListener('click',()=>begin(prototypeIndices[0],true,true));
     $('goalDemoButton').addEventListener('click',()=>{
         const goalIndex=engine.levelsConfig.levels.findIndex(level=>level.sceneKey==='PARK_GOAL1');
         if(goalIndex>=0)begin(goalIndex,true);
@@ -287,7 +299,22 @@
         });
     $('continueButton').addEventListener('click',()=>begin(progress.unlocked));
     $('resultButton').addEventListener('click',()=>{
-        if(goalShowcase){mainMenu();return;}
+        if(prototypeTour) {
+            if(engine.state!=='levelComplete') {
+                begin(engine.currentLevel,true,true);return;
+            }
+            const index=prototypeIndices.indexOf(engine.currentLevel);
+            if(index<0 || index===prototypeIndices.length-1){mainMenu();return;}
+            // Preserve the score and remaining lives between the three tests,
+            // but never progress into an unfinished normal stage.
+            engine.lives=Math.min(5,engine.lives+1);
+            engine.loadLevel(prototypeIndices[index+1]);
+            stageDialogueShown=false;clearStageEvent();
+            oldState='playing';setStageVisuals();hide('messageScreen');
+            try{window.GaiaSound?.setStage(engine.currentLevel);}catch(_){/* optional audio */}
+            showStageIntro();return;
+        }
+        if(demoMode){mainMenu();return;}
         if (engine.state==='levelComplete') {
             engine.lives=Math.min(5,engine.lives+1); // Modest reward for clearing a floor.
             engine.nextLevel();
@@ -297,7 +324,7 @@
             react('이번에도 잘 부탁드립니다♡','idle',900,true);
             try { window.GaiaSound?.setStage(engine.currentLevel); } catch (_) { /* optional audio */ }
             showStageIntro();
-        } else begin(0);
+        } else begin(prototypeIndices[0]);
     });
     $('dialogueStart').addEventListener('click',()=>{
         hide('dialogueScreen');
@@ -394,5 +421,5 @@
     engine.start();
     setStageVisuals();
     setDialogueMode(dialogueMode);
-    $('continueButton').hidden=!(progress.unlocked>0);
+    $('continueButton').hidden=true;
 })();

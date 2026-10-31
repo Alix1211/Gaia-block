@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const base=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
-const output=path.resolve(base,'..','GAIA_Heart_Breaker_v0.13.0_Three_Prototypes_Standalone.html');
+const output=path.resolve(base,'..','GAIA_Heart_Breaker_v0.13.1_Prototype_Tour_Standalone.html');
 const images=[
     ...Array.from({length:8},(_,i)=>`assets/backgrounds/stage${i+1}.png`),
     ...['hero-idle','hero-hit','hero-win','hero-shy'].map(name=>`assets/characters/${name}.png`),
