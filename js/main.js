@@ -70,7 +70,7 @@
         $('dialogueStage').textContent=`${String(level.stageId).padStart(2,'0')} / 40 · ${level.name}`;
         $('dialogueMale').textContent=entry.male;
         $('dialogueFemale').textContent=entry.female;
-        if(['PARK_GOAL1','ROOM_REVEAL','CASINO_BET'].includes(level.sceneKey)) {
+        if(['PARK_GOAL1','ROOM_REVEAL','CASINO_BET',...elasticScenes].includes(level.sceneKey)) {
             $('heroImage').src=faces.arrival;
             $('heroImage').dataset.mode='arrival';
         }
@@ -262,7 +262,7 @@
             (clear?(indexInTour===prototypeIndices.length-1?'3종 시범 종료 · 메인으로':'다음 기믹 ▶'):'이 기믹 다시 ▶'):
             demoMode?'시범판 종료 · 메인으로':clear?'다음 스테이지 ▶':'다시 도전 ▶';
         hide('pauseScreen');show('messageScreen');
-        const prototype=['PARK_GOAL1','ROOM_REVEAL','CASINO_BET'].includes(
+        const prototype=['PARK_GOAL1','ROOM_REVEAL','CASINO_BET',...elasticScenes].includes(
             engine.levelsConfig.levels[engine.currentLevel]?.sceneKey);
         react(won?'정말 감사합니다. 수고하셨습니다♡':clear?'감사합니다! 수고하셨습니다♡':'수고하셨습니다. 감사합니다♡',
             clear||won?(prototype?'cheer':'win'):'hit',3000,true);

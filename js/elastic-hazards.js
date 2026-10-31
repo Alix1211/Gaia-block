@@ -49,6 +49,8 @@
         const selected=assignments[stage.sceneKey];
         if(!selected) continue;
         stage.features={...stage.features,elasticCharacter:{...selected}};
+        // Keep the on-screen portrait, costume and reaction tied to the visible person.
+        stage.character=selected.who;
     }
 
     const oldLoadLevel=GameEngine.prototype.loadLevel;

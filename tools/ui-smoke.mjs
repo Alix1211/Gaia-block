@@ -141,6 +141,25 @@ element('resultButton').click();
 assert.equal(e.state,'menu');
 assert(element('continueButton').hidden,'Unbalanced 40-round continue must not interfere with the demo');
 assert.equal(e.currentLevel,5,'Main menu preview must point at the first playable gimmick');
+// The optional six-pose route must be accessible without unlocking 40 rounds.
+element('elasticDemoButton').click();
+assert.equal(e.currentLevel,21,'elastic test should begin at real stage 22');
+assert.equal(e.elasticCharacter?.pose,'lookback','large actor missing from stage 22');
+assert.equal(e.elasticCharacter?.who,'brown');
+assert.equal(e.state,'dialogue');
+assert(element('heroImage').src.includes('P05_brown_jacket_01'),
+  'pose tour introduction must use the matching dressed character');
+element('dialogueStart').click();
+assert.equal(e.state,'playing');
+e.bricks=[];
+e.update(16.67);
+assert.equal(e.state,'levelComplete');
+assert.equal(element('resultButton').textContent,'다음 숨은 캐릭터 ▶');
+element('resultButton').click();
+assert.equal(e.currentLevel,23,'stage 22 must advance directly to pose test 24');
+assert.equal(e.elasticCharacter?.who,'choseon');
+assert.equal(e.state,'dialogue');
+element('pauseHome').click(); // no-op in dialogue, return via menu on next pause.
 console.log(JSON.stringify({result:'PASS',singleShowcase:true,prototypeTour:'06→11→21→menu',
   startSkips01:true,touchLaunch:true,pauseResume:true,stageClearWithoutRender:true,
   gameOverRetry:true,renderErrorRecovery:true,progressPreserved:true}));
