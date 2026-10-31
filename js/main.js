@@ -15,6 +15,9 @@
     const prototypeIndices=prototypeScenes.map(scene=>
         engine.levelsConfig.levels.findIndex(level=>level.sceneKey===scene));
     if(prototypeIndices.some(index=>index<0))throw new Error('Missing prototype stage');
+    const elasticScenes=['CASINO_DOUBLE','CASINO_TIMING','CLUB_NEON','CLUB_CHAIN','POLICE_TEST','POLICE_BARRIER'];
+    const elasticIndices=elasticScenes.map(key=>engine.levelsConfig.levels.findIndex(s=>s.sceneKey===key));
+    if(elasticIndices.some(index=>index<0))throw new Error('Missing elastic character stage');
 
     // Keep existing controls, paddle, powers and sound; use authored forty rounds.
     // selection with one readable paddle whose upgrades appear in play.
@@ -43,7 +46,7 @@
     const dialogueKey = 'gaia-heart-breaker-dialogue-mode-v1';
     let dialogueMode='normal';
     try { if(localStorage.getItem(dialogueKey)==='hardcore') dialogueMode='hardcore'; } catch (_) {}
-    let stageDialogueShown=false,eventExpires=0,settingsWasPlaying=false,demoMode=false,prototypeTour=false;
+    let stageDialogueShown=false,eventExpires=0,settingsWasPlaying=false,demoMode=false,prototypeTour=false,elasticTour=false;
     const triggerByScene={
         MART_BASIC:'solid',MART_JELLY:'jelly',MART_METAL:'metal',MART_BOMB:'bomb',MART_FINALE:'quickChain',
         PARK_GOAL1:'soccer',PARK_JELLY:'soccer',PARK_MOVING:'soccer',PARK_DEFENSE:'soccer',PARK_FINAL:'soccer',
@@ -203,7 +206,7 @@
     function show(id) { $(id).classList.remove('hidden'); }
     function hide(id) { $(id).classList.add('hidden'); }
     function mainMenu() {
-        demoMode=false;prototypeTour=false;
+        demoMode=false;prototypeTour=false;elasticTour=false;
         window.GaiaSound?.stop();
         engine.resetGame();
         engine.loadLevel(prototypeIndices[0]);
@@ -219,9 +222,10 @@
         $('heroImage').src = faces.idle;
         $('heroImage').dataset.mode = 'idle';
     }
-    function begin(stage=prototypeIndices[0],showcase=false,tour=false) {
+    function begin(stage=prototypeIndices[0],showcase=false,tour=false,elastic=false) {
         demoMode=showcase;
         prototypeTour=tour;
+        elasticTour=elastic;
         engine.startGame();
         stageDialogueShown=false;
         clearStageEvent();
@@ -251,8 +255,10 @@
         $('resultDescription').textContent=won&&lines?.extras?.length?
             `${lines.extras[0]}\n\n${conclusion}`:(clear?conclusion:won?conclusion:'다시 도전하시면 더 잘하실 거예요.');
         $('resultScore').textContent=engine.score.toLocaleString()+' PT';
-        const indexInTour=prototypeIndices.indexOf(engine.currentLevel);
-        $('resultButton').textContent=prototypeTour?
+        const currentTour=elasticTour?elasticIndices:prototypeIndices;
+        const indexInTour=currentTour.indexOf(engine.currentLevel);
+        $('resultButton').textContent=elasticTour?
+            (clear?(indexInTour===currentTour.length-1?'6종 시험 종료 · 메인으로':'다음 숨은 캐릭터 ▶'):'이 판 다시 ▶'):prototypeTour?
             (clear?(indexInTour===prototypeIndices.length-1?'3종 시범 종료 · 메인으로':'다음 기믹 ▶'):'이 기믹 다시 ▶'):
             demoMode?'시범판 종료 · 메인으로':clear?'다음 스테이지 ▶':'다시 도전 ▶';
         hide('pauseScreen');show('messageScreen');
@@ -288,6 +294,7 @@
     }
 
     $('startButton').addEventListener('click',()=>begin(prototypeIndices[0],true,true));
+    $('elasticDemoButton').addEventListener('click',()=>begin(elasticIndices[0],true,false,true));
     $('goalDemoButton').addEventListener('click',()=>{
         const goalIndex=engine.levelsConfig.levels.findIndex(level=>level.sceneKey==='PARK_GOAL1');
         if(goalIndex>=0)begin(goalIndex,true);
@@ -299,16 +306,18 @@
         });
     $('continueButton').addEventListener('click',()=>begin(progress.unlocked));
     $('resultButton').addEventListener('click',()=>{
-        if(prototypeTour) {
+        if(prototypeTour || elasticTour) {
+            const elastic=elasticTour;
+            const tourStages=elastic?elasticIndices:prototypeIndices;
             if(engine.state!=='levelComplete') {
-                begin(engine.currentLevel,true,true);return;
+                begin(engine.currentLevel,true,!elastic,elastic);return;
             }
-            const index=prototypeIndices.indexOf(engine.currentLevel);
-            if(index<0 || index===prototypeIndices.length-1){mainMenu();return;}
+            const index=tourStages.indexOf(engine.currentLevel);
+            if(index<0 || index===tourStages.length-1){mainMenu();return;}
             // Preserve the score and remaining lives between the three tests,
             // but never progress into an unfinished normal stage.
             engine.lives=Math.min(5,engine.lives+1);
-            engine.loadLevel(prototypeIndices[index+1]);
+            engine.loadLevel(tourStages[index+1]);
             stageDialogueShown=false;clearStageEvent();
             oldState='playing';setStageVisuals();hide('messageScreen');
             try{window.GaiaSound?.setStage(engine.currentLevel);}catch(_){/* optional audio */}

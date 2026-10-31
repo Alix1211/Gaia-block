@@ -32,7 +32,7 @@ const document={getElementById:element,addEventListener:noop};
 const saved=new Map();
 const localStorage={getItem:k=>saved.get(k)||null,setItem:(k,v)=>saved.set(k,v)};
 const context=vm.createContext({window,document,Image:MockImage,localStorage,console,performance:{now:()=>1000},requestAnimationFrame:()=>1,cancelAnimationFrame:noop,setTimeout,clearTimeout,setInterval,clearInterval});
-const scripts=['config-inline','stages40','dialogues-data','gaia-sound','engine','sprite-atlas','block-sprites','renderer','main'];
+const scripts=['config-inline','stages40','dialogues-data','gaia-sound','engine','sprite-atlas','block-sprites','renderer','elastic-hazards','main'];
 for(const name of scripts)vm.runInContext(fs.readFileSync(path.join(root,'js',name+'.js'),'utf8'),context);
 await new Promise(resolve=>setImmediate(resolve));
 const e=window.gaiaTestEngine;

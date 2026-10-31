@@ -19,6 +19,9 @@ const images=[
         `assets/characters/animations/${who}/goal/${pose}.png`)),
     ...['brown','choseon'].flatMap(who=>['','jump/'].flatMap(mode=>
         [0,1,2,3].map(i=>`assets/characters/animations/${who}/back/${mode}frame_0${i}.png`))),
+    ...['brown','choseon'].map(who=>`assets/characters/animations/${who}/goal/look-back.png`),
+    ...['12-1000109497','13-1000109494','14-1000109492','15-1000109491'].map(name=>
+        `assets/characters/source_sheets/${name}.png`),
     'assets/sprites/balls-paddles.png',
     'assets/sprites/glass-bricks.png',
     ...['01-jelly','02-pink-metal','03-pink-wood','04-neon','05-solid'].flatMap(material=>
@@ -42,7 +45,7 @@ html=html.replace('<link rel="stylesheet" href="css/style.css">',`<style>\n${css
 html=html.replace('src="assets/characters/hero-idle.png"',`src="${map['assets/characters/hero-idle.png']}"`);
 const assetMapScript=`<script>\nwindow.GaiaAssetMap=${JSON.stringify(map)};\nwindow.GaiaAssetUrl=function(path){return window.GaiaAssetMap[path]||path;};\n</script>`;
 html=html.replace('  <script src="js/config-inline.js"></script>',`  ${assetMapScript}\n  <script src="js/config-inline.js"></script>`);
-const scripts=['config-inline','stages40','dialogues-data','gaia-sound','engine','sprite-atlas','block-sprites','renderer','main'];
+const scripts=['config-inline','stages40','dialogues-data','gaia-sound','engine','sprite-atlas','block-sprites','renderer','elastic-hazards','main'];
 for(const name of scripts){
     const target=`<script src="js/${name}.js"></script>`;
     if(!html.includes(target))throw new Error(`Missing entry: ${name}`);
