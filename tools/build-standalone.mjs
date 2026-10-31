@@ -4,16 +4,21 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const base=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
-const output=path.resolve(base,'..','GAIA_Heart_Breaker_v0.12.0_Goal_Standalone.html');
+const output=path.resolve(base,'..','GAIA_Heart_Breaker_v0.13.0_Three_Prototypes_Standalone.html');
 const images=[
     ...Array.from({length:8},(_,i)=>`assets/backgrounds/stage${i+1}.png`),
     ...['hero-idle','hero-hit','hero-win','hero-shy'].map(name=>`assets/characters/${name}.png`),
     ...['P01_choseon_pink','P02_brown_red'].flatMap(who=>[1,2,3,4].map(i=>
         `assets/characters/cutouts/03_portraits/${who}_0${i}.png`)),
+    ...['P03_choseon_royal_01','P05_brown_jacket_01',
+        'P06_brown_jacket_cheer','P06_choseon_royal_cheer'].map(file=>
+        `assets/characters/cutouts/03_portraits/${file}.png`),
     ...['brown_red','choseon_pink'].flatMap(who=>[1,2,3,4].map(i=>
         `assets/characters/cutouts/01_spanking/S0${i}_${who}_${i===4?'bend':'back'}.png`)),
     ...['brown','choseon'].flatMap(who=>['low','high'].map(pose=>
         `assets/characters/animations/${who}/goal/${pose}.png`)),
+    ...['brown','choseon'].flatMap(who=>['','jump/'].flatMap(mode=>
+        [0,1,2,3].map(i=>`assets/characters/animations/${who}/back/${mode}frame_0${i}.png`))),
     'assets/sprites/balls-paddles.png',
     'assets/sprites/glass-bricks.png',
     ...['01-jelly','02-pink-metal','03-pink-wood','04-neon','05-solid'].flatMap(material=>

@@ -72,6 +72,8 @@ body { background:#f4b8d9; color:#fff; font-family:'Malgun Gothic','Apple SD Got
 .menu-divider { color:#f578ac; letter-spacing:12px; font-size:14px; }
 .menu-card p { font-size:clamp(11px,1.1vw,15px); color:#804d7b; margin:0; line-height:1.5; }
 .pink-button,.ghost-button { border:0; min-height:44px; padding:10px 24px; border-radius:12px; cursor:pointer; font-weight:900; font-family:inherit; letter-spacing:.04em; max-width:100%; touch-action:manipulation; }
+.demo-picks { width:100%; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
+.demo-picks .ghost-button { min-height:48px; padding:7px 3px; white-space:normal; font-size:clamp(10px,1vw,13px); line-height:1.25; }
 .pink-button { width:100%; background:linear-gradient(180deg,#ffd0eb,#ff74b6); box-shadow:0 5px 0 #8b245f,0 10px 30px #ef4e9b66; color:#722149; font-size:clamp(14px,1.4vw,18px); }
 .pink-button span { margin-left:10px; }
 .pink-button:active { transform:translateY(3px); box-shadow:0 2px 0 #8b245f; }

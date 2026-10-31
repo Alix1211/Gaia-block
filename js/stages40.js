@@ -82,30 +82,34 @@
             'W.W.WW.W.W','WWWWWWWWWW','SSsSSSsSSS','sSsSsSsSsS'
         ],
         PARK_GOAL1:[
-            '..NNJJNN..','.JJSSSSJJ.','NSSWWWWSSN','SSSS..SSSS',
-            'SSJJ..JJSS','SSJJMMJJSS','.SSWWWWSS.','SSSSSSSSSS'
+            'NN..JJ..NN','NNSS..SSNN','SSS....SSS','WWSS..SSWW',
+            'SS......SS','JJ......JJ','SSS....SSS','WWWW..WWWW'
         ],
         STUDIO_TAKE1:[
             '.SSSSSSSS.','.sSsSsSsS.','.SSSSSSSS.','.sSsSsSsS.',
             'SSSS..SSSS','sSsSsSsSsS','WWWWWWWWWW','SWWWWWWWWS'
         ],
         ROOM_REVEAL:[
-            'SSSS..SSSS','sSSs..sSSs','W.SSSSSS.W','W.sSsSsS.W',
-            'WWWW..WWWW','SSSS..SSSS','WSSSSSSSSW','sSsSsSsSsS'
+            'WWWWWWWWWW','W........W','W.SSSSSS.W','W.SSSSSS.W',
+            'W.SS..SS.W','WWWWWWWWWW','W.SSSSSS.W','WWWWWWWWWW'
         ],
         CLUB_NEON:[
             'NNN.NN.NNN','nNnNnNnNnN','SSS.SS.SSS','nNnNnNnNnN',
             'NNN.NN.NNN','sSsSsSsSsS','SSSSNSSSSS','SSSSSSSSSS'
         ],
         CASINO_BET:[
-            'SSMMSSMMSS','SSSS..SSSS','SSS.SS.SSS','SS.SSSS.SS',
-            'SSS.SS.SSS','SSMMSSMMSS','sSsSsSsSsS','SSSSSSSSSS'
+            'MM..SS..MM','SSS....SSS','SS..MM..SS','...SSSS...',
+            'SSS....SSS','SS..JJ..SS','.SSS..SSS.','MMMM..MMMM'
         ],
         POLICE_TEST:[
             'NNNN..NNNN','JJWWSSMMNN','JJJ.JJ.JJJ','WWWWMMWWWW',
             'JJ.JJJJ.JJ','nNnNSSnNnN','J.SSSSSS.J','SSMMSSMMSS','SSWWSSWWSS'
         ]
     };
+    // Three *gimmick* prototypes, not difficulty-graded finished boards.
+    // Art-directed silhouettes above remain intact; real long pieces occupy
+    // two adjacent tiles and square pieces keep their own smaller hitboxes.
+    const prototypes=new Set(['PARK_GOAL1','ROOM_REVEAL','CASINO_BET']);
     const materialsByCode={S:'solid',J:'jelly',W:'wood',M:'metal',N:'neon'};
     function decodeDesignedBoard(stage,pattern) {
         if(pattern.length!==stage.rows || pattern.some(row=>row.length!==10))
@@ -117,7 +121,25 @@
             return {material,mark:null,colorway:token===token.toLowerCase()?'alt':'base'};
         }));
         const actual=result.flat().filter(Boolean).length;
-        if(actual!==stage.count)throw new Error(`Custom grid count ${stage.sceneKey}: ${actual}/${stage.count}`);
+        if(actual!==stage.count && !prototypes.has(stage.sceneKey))
+            throw new Error(`Custom grid count ${stage.sceneKey}: ${actual}/${stage.count}`);
+        if(prototypes.has(stage.sceneKey)) {
+            let pieces=0;
+            result.forEach((row,r)=>{
+                for(let c=0;c<row.length;c++) {
+                    const cell=row[c];
+                    if(!cell)continue;
+                    const next=row[c+1];
+                    if(next && cell.material===next.material && (r*7+c*3+stage.chapter)%5<3) {
+                        cell.span=2;cell.size='long';row[c+1]=null;c++;
+                    } else if((r*3+c+stage.chapter)%4===0)cell.size='square';
+                    pieces++;
+                }
+            });
+            stage.tileCount=actual;
+            stage.count=pieces;
+            stage.prototype=true;
+        }
         return result;
     }
     function makeBoard(stage) {
@@ -181,25 +203,11 @@
         }
         return board;
     }
-    // Each batch of eight visits every location once. Difficulty 1→5 advances
-    // across the city instead of making the player stay five rounds in a row
-    // at the same venue. Final round still ends at the police station.
-    const circuit=[
-        [0,5,1,3,2,6,4,7],
-        [1,0,6,2,5,4,3,7],
-        [5,2,0,4,3,1,7,6],
-        [4,1,3,5,6,2,0,7],
-        [0,2,3,4,5,1,6,7]
-    ];
-    const mixed=[];
-    for(let difficulty=0;difficulty<5;difficulty++) {
-        for(const venueIndex of circuit[difficulty]) {
-            const source=data[venueIndex*5+difficulty];
-            const stageId=mixed.length+1;
-            mixed.push({...source,id:stageId,stageId,
-                chapter:venueIndex,tier:difficulty+1,
-                ballSpeed:3.8+difficulty*.31+(stageId-1)%8*.055});
-        }
-    }
-    window.GAIA_40_STAGES = mixed.map(stage => ({...stage, bricks:makeBoard(stage)}));
+    // Stage numbers correspond to the original script: 06=goal, 11=reveal,
+    // 21=moving barrier. These are not final difficulty ratings.
+    window.GAIA_40_STAGES = data.map(source=>{
+        const stage={...source};
+        const bricks=makeBoard(stage);
+        return {...stage,bricks};
+    });
 })();

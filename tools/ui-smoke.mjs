@@ -41,26 +41,49 @@ assert.equal(e.state,'menu');
 element('goalDemoButton').click();
 assert.equal(e.levelsConfig.levels[e.currentLevel].sceneKey,'PARK_GOAL1','Goal showcase must start the right level');
 assert(e.targets[0]?.goalArtwork,'Goal showcase is missing the animated target');
+assert.equal(e.currentLevel,5,'Script stage 06 must be the playable stage 06');
+assert.equal(e.state,'dialogue','Intro freezes the prototype until acknowledged');
+assert(element('heroImage').src.includes('P03_choseon_royal_01'),'Dressed intro must use the supplied portrait');
 element('dialogueStart').click();
+assert.equal(e.state,'playing');
+assert(element('heroImage').src.includes('P01_choseon_pink_01'),'Costume swaps to the original play portrait');
 e.targets[0].count=e.targets[0].required;
-e.bricks=e.bricks.filter(b=>b.indestructible).concat(e.bricks.filter(b=>!b.indestructible).slice(0,13));
+e.bricks=e.bricks.filter(b=>b.indestructible).concat(e.bricks.filter(b=>!b.indestructible).slice(0,
+  Math.floor(e.stageStats.total*(1-e.levelsConfig.levels[e.currentLevel].clear))));
 e.update(16.67);
 assert.equal(e.state,'levelComplete','Goal demo does not complete');
+assert(element('heroImage').src.includes('P06_choseon_royal_cheer'),
+  'Result must use the supplied clothed celebration artwork');
 element('resultButton').click();
 assert.equal(e.state,'menu','Showcase must return to the menu');
 assert(element('continueButton').hidden,'Showcase may not unlock unfinished main stages');
+for(const [button,key,index] of [['revealDemoButton','ROOM_REVEAL',10],['hopDemoButton','CASINO_BET',20]]){
+  element(button).click();
+  assert.equal(e.currentLevel,index,`${key} must have its dialogue stage number`);
+  assert.equal(e.levelsConfig.levels[e.currentLevel].sceneKey,key);
+  assert.equal(e.state,'dialogue');
+  assert(element('heroImage').src.includes('P05_brown_jacket_01'),
+    'Other prototype intros must use the existing clothed portrait');
+  element('dialogueStart').click();
+  assert.equal(e.state,'playing');
+  assert(element('heroImage').src.includes('P02_brown_red_01'),
+    'Other prototype gameplay must use existing play portrait');
+  element('pauseButton').click();element('pauseHome').click();
+  assert.equal(e.state,'menu');
+}
 element('startButton').click();
-assert.equal(e.state,'playing');
+assert.equal(e.state,'dialogue');
 assert(e.ballAttached);
 assert(!element('dialogueScreen').classList.contains('hidden'),'Opening dialogue overlay missing');
-element('settingsButton').click();
-assert.equal(e.state,'paused','Settings must freeze game');
 element('hardcoreMode').click();
 assert.equal(localStorage.getItem('gaia-heart-breaker-dialogue-mode-v1'),'hardcore');
 assert(element('dialogueMale').textContent.includes('암캐'),'User-provided dialogue not selected');
+element('dialogueStart').click();
+assert.equal(e.state,'playing');
+element('settingsButton').click();
+assert.equal(e.state,'paused','Settings must freeze game');
 element('settingsClose').click();
 assert.equal(e.state,'playing');
-element('dialogueStart').click();
 assert(element('dialogueScreen').classList.contains('hidden'));
 events.touchstart({preventDefault:noop,touches:[{clientX:400,clientY:720}]});
 assert(!e.ballAttached,'Tap failed to launch ball');
@@ -76,6 +99,8 @@ assert.equal(e.state,'levelComplete');
 assert(!element('messageScreen').classList.contains('hidden'),'Stage completion overlay missing');
 element('resultButton').click();
 assert.equal(e.currentLevel,1);
+assert.equal(e.state,'dialogue');
+element('dialogueStart').click();
 assert.equal(e.state,'playing');
 // Loss should open the result immediately as well, even when no next render occurs.
 e.lives=1;
@@ -83,6 +108,8 @@ e.loseLife();
 assert.equal(e.state,'gameOver');
 assert(!element('messageScreen').classList.contains('hidden'),'Game over result overlay missing');
 element('resultButton').click();
+assert.equal(e.state,'dialogue','Game over retry must open its dialogue');
+element('dialogueStart').click();
 assert.equal(e.state,'playing','Game over retry button failed');
 // A drawing exception must not permanently terminate requestAnimationFrame.
 const originalRender=e.render;

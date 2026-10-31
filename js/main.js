@@ -33,7 +33,7 @@
         ice:()=>engine.powersConfig.powers.find(p=>p.effect==='slow'),
         bolt:()=>engine.powersConfig.powers.find(p=>p.effect==='electric')
     };
-    const storageKey = 'gaia-heart-breaker-40-v1';
+    const storageKey = 'gaia-heart-breaker-40-v2';
     const dialogueKey = 'gaia-heart-breaker-dialogue-mode-v1';
     let dialogueMode='normal';
     try { if(localStorage.getItem(dialogueKey)==='hardcore') dialogueMode='hardcore'; } catch (_) {}
@@ -61,6 +61,13 @@
         $('dialogueStage').textContent=`${String(level.stageId).padStart(2,'0')} / 40 · ${level.name}`;
         $('dialogueMale').textContent=entry.male;
         $('dialogueFemale').textContent=entry.female;
+        if(['PARK_GOAL1','ROOM_REVEAL','CASINO_BET'].includes(level.sceneKey)) {
+            $('heroImage').src=faces.arrival;
+            $('heroImage').dataset.mode='arrival';
+        }
+        engine.state='dialogue'; // Intro must finish before physics advances.
+        oldState='dialogue';
+        window.GaiaSound?.pause();
         show('dialogueScreen');
     }
     function showStageEvent(line) {
@@ -78,7 +85,7 @@
         try {localStorage.setItem(dialogueKey,dialogueMode);} catch (_) {}
         $('normalMode').setAttribute('aria-pressed',String(dialogueMode==='normal'));
         $('hardcoreMode').setAttribute('aria-pressed',String(dialogueMode==='hardcore'));
-        if(!$('dialogueScreen').classList.contains('hidden')) showStageIntro();
+        if(engine.state==='dialogue') showStageIntro();
         if(['levelComplete','victory'].includes(engine.state)) {
             $('resultDescription').textContent=currentDialogue()?.clear||'감사합니다. 수고하셨습니다♡';
         }
@@ -90,9 +97,20 @@
             progress = { best:Math.max(0,saved.best), unlocked:Math.max(0,Math.min(total-1,saved.unlocked)) };
         } else {
             // Old eight-venue progress maps to the first tier of each venue.
+            const previous40=JSON.parse(localStorage.getItem('gaia-heart-breaker-40-v1')||'null');
+            if(previous40 && Number.isInteger(previous40.unlocked)) {
+                // The previous edition mixed all eight venues; preserve the
+                // previously reached scene when restoring original script order.
+                const circuit=[[0,5,1,3,2,6,4,7],[1,0,6,2,5,4,3,7],
+                    [5,2,0,4,3,1,7,6],[4,1,3,5,6,2,0,7],
+                    [0,2,3,4,5,1,6,7]];
+                const oldIndex=Math.max(0,Math.min(39,previous40.unlocked));
+                const venueIndex=circuit[Math.floor(oldIndex/8)][oldIndex%8];
+                progress={best:Math.max(0,previous40.best||0),unlocked:venueIndex*5+Math.floor(oldIndex/8)};
+            }
             const previous=JSON.parse(localStorage.getItem('gaia-heart-breaker-arcade-v1')||'null');
             if(previous && Number.isInteger(previous.unlocked))
-                progress={best:Math.max(0,previous.best||0),unlocked:Math.min(total-1,previous.unlocked*5)};
+                if(!previous40)progress={best:Math.max(0,previous.best||0),unlocked:Math.min(total-1,previous.unlocked*5)};
         }
     } catch (_) { /* Private/offline browsers may disable localStorage. */ }
     function save() {
@@ -103,9 +121,11 @@
     const portraitBase='assets/characters/cutouts/03_portraits/';
     const faceSets={
         brown:{idle:'P02_brown_red_01.png',hit:'P02_brown_red_02.png',
-            win:'P02_brown_red_03.png',shy:'P02_brown_red_04.png'},
+            win:'P02_brown_red_03.png',shy:'P02_brown_red_04.png',
+            arrival:'P05_brown_jacket_01.png',cheer:'P06_brown_jacket_cheer.png'},
         choseon:{idle:'P01_choseon_pink_01.png',hit:'P01_choseon_pink_02.png',
-            win:'P01_choseon_pink_03.png',shy:'P01_choseon_pink_04.png'}
+            win:'P01_choseon_pink_03.png',shy:'P01_choseon_pink_04.png',
+            arrival:'P03_choseon_royal_01.png',cheer:'P06_choseon_royal_cheer.png'}
     };
     for(const group of Object.values(faceSets)) for(const key of Object.keys(group))
         group[key]=asset(portraitBase+group[key]);
@@ -118,7 +138,7 @@
         if (!force && now < reactionHold) return false;
         reactionHold = now + Math.max(600,hold*.55);
         faceReset = now + hold;
-        $('reaction').textContent = sentence;
+        if(sentence) $('reaction').textContent = sentence;
         const hero = $('heroImage');
         if (hero.dataset.mode !== mode) {
             hero.src = faces[mode] || faces.idle;
@@ -126,7 +146,7 @@
         }
         hero.classList.remove('bounce','hit');
         void hero.offsetWidth;
-        hero.classList.add(mode === 'win' ? 'bounce' : 'hit');
+        hero.classList.add(mode === 'win'||mode==='cheer' ? 'bounce' : 'hit');
         return true;
     }
     engine.onBrickHit = (brick, destroyed) => {
@@ -142,6 +162,10 @@
         const scene=engine.levelsConfig.levels[engine.currentLevel]?.sceneKey;
         const entry=currentDialogue();
         if(!scene||!entry) return;
+        if(event.type==='bodyHit') {
+            react(null,event.zone==='hip'?'hit':event.zone==='waist'?'shy':'win',1350);
+            return;
+        }
         if(scene==='POLICE_ENDING' && event.type==='heart') {
             if(event.target?.count===2) showStageEvent(entry.trigger);
             if(event.target?.count===3) showStageEvent(entry.extras?.[0]);
@@ -157,6 +181,7 @@
         if(scene==='POLICE_DUAL' && engine.targets.some(t=>t.count<t.required)) return;
         stageDialogueShown=true;
         showStageEvent(entry.trigger);
+        react(null,'win',1700,true);
     };
 
     function setStageVisuals() {
@@ -219,7 +244,10 @@
         $('resultScore').textContent=engine.score.toLocaleString()+' PT';
         $('resultButton').textContent=goalShowcase?'시범판 종료 · 메인으로':clear?'다음 스테이지 ▶':'다시 도전 ▶';
         hide('pauseScreen');show('messageScreen');
-        react(won?'정말 감사합니다. 수고하셨습니다♡':clear?'감사합니다! 수고하셨습니다♡':'수고하셨습니다. 감사합니다♡',clear||won?'win':'hit',3000,true);
+        const prototype=['PARK_GOAL1','ROOM_REVEAL','CASINO_BET'].includes(
+            engine.levelsConfig.levels[engine.currentLevel]?.sceneKey);
+        react(won?'정말 감사합니다. 수고하셨습니다♡':clear?'감사합니다! 수고하셨습니다♡':'수고하셨습니다. 감사합니다♡',
+            clear||won?(prototype?'cheer':'win'):'hit',3000,true);
         try {
             if (clear || won) {
                 window.GaiaSound?.levelUp();
@@ -252,6 +280,11 @@
         const goalIndex=engine.levelsConfig.levels.findIndex(level=>level.sceneKey==='PARK_GOAL1');
         if(goalIndex>=0)begin(goalIndex,true);
     });
+    for(const [button,sceneKey] of [['revealDemoButton','ROOM_REVEAL'],['hopDemoButton','CASINO_BET']])
+        $(button).addEventListener('click',()=>{
+            const index=engine.levelsConfig.levels.findIndex(level=>level.sceneKey===sceneKey);
+            if(index>=0)begin(index,true);
+        });
     $('continueButton').addEventListener('click',()=>begin(progress.unlocked));
     $('resultButton').addEventListener('click',()=>{
         if(goalShowcase){mainMenu();return;}
@@ -266,7 +299,14 @@
             showStageIntro();
         } else begin(0);
     });
-    $('dialogueStart').addEventListener('click',()=>hide('dialogueScreen'));
+    $('dialogueStart').addEventListener('click',()=>{
+        hide('dialogueScreen');
+        $('heroImage').src=faces.idle;
+        $('heroImage').dataset.mode='idle';
+        engine.state='playing';oldState='playing';
+        engine.lastTime=performance.now();
+        window.GaiaSound?.resume();
+    });
     $('settingsButton').addEventListener('click',()=>{
         settingsWasPlaying=engine.state==='playing';
         if(settingsWasPlaying) pause();

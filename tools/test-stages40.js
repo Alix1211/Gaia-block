@@ -34,25 +34,25 @@ const loadScene=key=>{
     assert(index>=0,`missing scene ${key}`);
     game.loadLevel(index);
 };
-for(let tier=0;tier<5;tier++) {
-    const batch=game.levelsConfig.levels.slice(tier*8,(tier+1)*8);
-    assert.equal(new Set(batch.map(stage=>stage.chapter)).size,8,`every venue visited at difficulty ${tier+1}`);
-    assert(batch.every(stage=>stage.tier===tier+1),`difficulty batch ${tier+1}`);
+for(let chapter=0;chapter<8;chapter++) {
+    const batch=game.levelsConfig.levels.slice(chapter*5,(chapter+1)*5);
+    assert(batch.every(stage=>stage.chapter===chapter),`script chapter ${chapter+1}`);
+    assert(batch.every((stage,i)=>stage.tier===i+1),`five variations per chapter ${chapter+1}`);
 }
 for(let n=0;n<40;n++) {
     const stage=game.levelsConfig.levels[n];
     game.loadLevel(n);
     assert.equal(stage.stageId,n+1);
     assert(stage.chapter>=0 && stage.chapter<8);
-    assert.equal(stage.tier,Math.floor(n/8)+1);
+    assert.equal(stage.tier,n%5+1);
     assert(!sceneKeys.has(stage.sceneKey),`duplicate scene ${stage.sceneKey}`);
     sceneKeys.add(stage.sceneKey);
     assert(window.GAIA_DIALOGUES.normal[stage.sceneKey]);
     assert(window.GAIA_DIALOGUES.hardcore[stage.sceneKey]);
     const blocks=game.bricks.filter(b=>!b.indestructible);
     assert.equal(blocks.length,stage.count,`stage ${n+1} block count`);
-    assert(blocks.every(b=>['rect','rect-alt','square'].includes(b.spriteVariant)),`stage ${n+1} art shapes`);
-    assert(blocks.every(b=>b.height===32 && (b.width===73||b.width===34)),`stage ${n+1} sprite/hitbox sizing`);
+    assert(blocks.every(b=>['rect','rect-alt','square','long'].includes(b.spriteVariant)),`stage ${n+1} art shapes`);
+    assert(blocks.every(b=>b.height===32 && [34,73,150].includes(b.width)),`stage ${n+1} sprite/hitbox sizing`);
     assert(blocks.every(b=>!b.mark || (b.spriteVariant==='square' && b.width===34)),`stage ${n+1} special art sizing`);
     assert.equal(game.stageStats.total,blocks.length);
     assert.equal(game.targets.length,Object.values(stage.objectives).filter(Array.isArray).reduce((sum,list)=>sum+list.length,0));
@@ -157,7 +157,9 @@ assert(game.stageStats.chains.quickChain>=1,'stage 5 quick chain can trigger');
 loadScene('PARK_GOAL1');
 const goalStage=game.levelsConfig.levels[game.currentLevel];
 assert.equal(goalStage.bricks.length,8,'goal board uses eight rows');
-assert.equal(game.bricks.filter(b=>!b.indestructible).length,68);
+assert.equal(game.bricks.filter(b=>!b.indestructible).length,goalStage.count);
+assert(game.bricks.some(b=>b.width===150) && game.bricks.some(b=>b.width===34),
+    'goal prototype has square and double-wide physical pieces');
 assert(game.bricks.every(b=>b.y+b.height<=412),'goal board must leave a character zone');
 const goal=game.targets.find(t=>t.kind==='soccer');
 assert(goal?.goalArtwork && goal.character==='choseon');
@@ -168,7 +170,8 @@ game.elapsed=0;
 game.updateStageTargets();
 assert.equal(goal.poseFrame,0);
 const lowPoint={x:goal.x,y:goal.y};
-assert(goal.goalArtwork.top>412 && goal.goalArtwork.top+goal.goalArtwork.height<=718,'goal sprite fits the reserved area');
+assert(goal.goalArtwork.top<350 && goal.goalArtwork.top+goal.goalArtwork.height<570,
+    'goal figure stands behind the bricks, not below them');
 game.elapsed=.27;
 game.updateStageTargets();
 assert.equal(goal.poseFrame,1);
@@ -178,8 +181,40 @@ goal.lastHit=-100;
 game.checkStageTargetCollisions({x:goal.x,y:goal.y-3,dy:-5,dx:1,radius:11,speed:4,baseSpeed:4},goal.y+3);
 assert.equal(goal.count,1,'the moving illustrated goal registers a real upward score');
 assert(!game.stageIsComplete(),'a score alone must not skip the block objective');
-game.bricks=game.bricks.filter(b=>b.indestructible).concat(game.bricks.filter(b=>!b.indestructible).slice(0,13));
+game.bricks=game.bricks.filter(b=>b.indestructible).concat(game.bricks.filter(b=>!b.indestructible).slice(0,
+    Math.floor(goalStage.count*(1-goalStage.clear))));
 game.updateStageTargets();
 assert(game.stageIsComplete(),'goal + 80% destruction should clear the round');
 
-console.log('GAIA 40 stages: 20 trimmed images, sizes, goals, materials, movers, chains, animated goal hitbox OK');
+// A revealing squat character and a mobile crouched actor occupy the upper
+// playfield and respond at four *different* physical locations.
+loadScene('ROOM_REVEAL');
+const body=game.targets.find(t=>t.kind==='reflect');
+assert(body?.bodyArtwork && body.bodyArtwork.top<300,'hidden character art is on the board');
+game.elapsed=.5;game.updateStageTargets();
+const head=[.32,.20,.10,.03][body.bodyArtwork.frame];
+for(const [name,cy] of [['shoulder',head+.16],['waist',head+(1-head)*.51],
+    ['hip',head+(1-head)*.72],['thigh',head+(1-head)*.87]]) {
+    const ball={x:body.bodyArtwork.left+body.bodyArtwork.width*.5,
+        y:body.bodyArtwork.top+body.bodyArtwork.height*cy,dy:4,dx:1,radius:9,speed:4,baseSpeed:4};
+    assert.equal(game.bodyContact(ball,body.bodyArtwork)?.name,name,`${name} physical zone`);
+}
+body.lastHit=-100;
+const hipY=body.bodyArtwork.top+body.bodyArtwork.height*(head+(1-head)*.72);
+const hitBall={x:body.x,y:hipY,dy:4,dx:1,radius:9,speed:4,baseSpeed:4};
+game.checkStageTargetCollisions(hitBall,hipY-4);
+assert.equal(body.count,1,'body collision scores the required reflection');
+assert(hitBall.dy<0,'body collision visibly bounces the ball');
+loadScene('CASINO_BET');
+assert.equal(game.actors.length,1,'a crouched roaming actor is part of the level');
+game.elapsed=1;game.updateStageTargets();
+const actor=game.actors[0],art=actor.bodyArtwork;
+assert(art.frame<=1 && art.hop,'hop actor never uses the standing pose');
+assert(art.top<200 && art.left>0,'roaming character stays behind board obstacles');
+assert(game.bricks.some(b=>b.indestructible),'casino still has its scripted moving barrier');
+const actorHip=[.32,.20][art.frame]+(1-[.32,.20][art.frame])*.72;
+const actorBall={x:actor.x,y:art.top+art.height*actorHip,dy:3,dx:1,radius:9,speed:4,baseSpeed:4};
+game.checkStageTargetCollisions(actorBall,actorBall.y-3);
+assert(actor.lastHit>0 && actorBall.dy<0,'roaming body responds with a bounce');
+
+console.log('GAIA 40 stages: 3 physical prototypes (goal/hidden-body/roaming-hop), art sizes, targets, materials and chains OK');

@@ -20,6 +20,13 @@ class Renderer {
             img.src=(window.GaiaAssetUrl||((v)=>v))(`assets/characters/animations/${who}/goal/${pose}.png`);
             this.goalCharacters[`${who}:${i}`]=img;
         }
+        this.bodyCharacters={};
+        for(const who of ['brown','choseon']) for(const mode of ['squat','hop'])
+            for(let i=0;i<4;i++) {
+                const path=`assets/characters/animations/${who}/back/${mode==='hop'?'jump/':''}frame_0${i}.png`;
+                const img=new Image();img.src=(window.GaiaAssetUrl||((v)=>v))(path);
+                this.bodyCharacters[`${who}:${mode}:${i}`]=img;
+            }
     }
 
     render() {
@@ -32,6 +39,7 @@ class Renderer {
         this.background();
         if (e.shieldActive) this.shield();
         for (const target of e.targets||[]) this.target(target);
+        for (const actor of e.actors||[]) this.actor(actor);
         for (const brick of e.bricks) this.brick(brick);
         for (const power of e.powerUps) this.power(power);
         for (const laser of e.lasers) this.laser(laser);
@@ -174,6 +182,10 @@ class Renderer {
         c.save();c.globalAlpha=isDone?.32:1;
         const x=t.x,y=t.y;
         const pulse=1+Math.sin(this.time*5)*.055;
+        if(t.bodyArtwork) {
+            this.bodyArtwork(t.bodyArtwork,t.character,t.triggered,isDone);
+            c.restore();return;
+        }
         if(t.kind==='pin') {
             c.translate(x,y);if(t.fallen)c.rotate(1.25);
             c.shadowColor='#ffbde0';c.shadowBlur=14;
@@ -236,6 +248,28 @@ class Renderer {
             c.fillText(`${t.count}/${t.required}`,x,y+t.height/2+25);
         }
         c.restore();
+    }
+
+    bodyArtwork(art,character,triggered,done=false) {
+        const c=this.ctx;
+        const mode=art.hop?'hop':'squat';
+        const sprite=this.bodyCharacters[`${character}:${mode}:${art.frame||0}`];
+        c.save();
+        c.globalAlpha=done?.42:1;
+        if(sprite?.complete && sprite.naturalWidth)
+            c.drawImage(sprite,art.left,art.top,art.width,art.height);
+        if(this.engine.elapsed-triggered<.22) {
+            c.globalAlpha=.75;
+            c.strokeStyle='#ffeb91';c.lineWidth=4;
+            c.beginPath();c.arc(art.left+art.width/2,
+                art.top+art.height*.73,27+(this.engine.elapsed-triggered)*60,0,Math.PI*2);
+            c.stroke();
+        }
+        c.restore();
+    }
+
+    actor(a) {
+        this.bodyArtwork(a.bodyArtwork,a.character,a.triggered);
     }
 
     paddle() {

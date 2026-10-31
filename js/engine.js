@@ -47,6 +47,7 @@ class GameEngine {
         this.slowTimer = 0;
         this.elapsed = 0;
         this.targets = [];
+        this.actors = []; // Optional physical characters, separate from score targets.
         this.stageStats = null;
         this.stageEvents = [];
         this.stageCleared = false;
@@ -285,6 +286,7 @@ class GameEngine {
         this.stageCleared = false;
         this.stageEvents = [];
         this.targets = [];
+        this.actors = [];
         this.poisonClouds = [];
 
         // Create paddle
@@ -315,11 +317,13 @@ class GameEngine {
                 if (!cell) return;
                 const mat = materials[cell.material] || materials.solid;
                 const hits = cell.mark==='recolor' ? Math.max(3,mat.hits) : mat.hits;
-                // Marked blocks use real square artwork and a square hitbox.
-                const special=Boolean(cell.mark);
-                const width=special?34:bw;
-                const spriteVariant=special?'square':(r+c+index)%3===0?'rect-alt':'rect';
-                const x=left+c*(bw+gap)+(bw-width)/2;
+                // Prototype boards place real 1/2/2-cell-width PNG hitboxes.
+                // A long piece owns its entire two-column region (no ghost block).
+                const special=Boolean(cell.mark)||cell.size==='square';
+                const width=cell.span===2?bw*2+gap:special?34:bw;
+                const spriteVariant=cell.span===2?'long':special?'square':
+                    (r+c+index)%3===0?'rect-alt':'rect';
+                const x=left+c*(bw+gap)+(cell.span===2?0:(bw-width)/2);
                 const y=72+r*rowStep;
                 this.bricks.push({x,baseX:x,y,width,height:bh,type:1,
                     material:cell.material,mark:cell.mark,hits,maxHits:hits,
@@ -348,6 +352,13 @@ class GameEngine {
                 goals:{},chains:{bombChain:0,poisonChain:0,lightningChain:0,quickChain:0},
                 recentKills:[]};
             this.setupStageTargets(level);
+            if(level.sceneKey==='CASINO_BET') {
+                const width=236;
+                this.actors.push({character:level.character,kind:'hop',baseX:400,x:400,
+                    lastHit:-100,triggered:-100,zone:null,
+                    bodyArtwork:{left:400-width/2,top:148,width,height:width*768/448,
+                        frame:0,hop:true}});
+            }
         } else {
         // Original 8-board generator retained for archival/non-GAIA configs.
         this.stageStats = null;
@@ -459,12 +470,23 @@ class GameEngine {
                     const width=268,scale=width/832,height=928*scale;
                     target.goalArtwork={
                         left:baseX-hotspots[0].x*scale,
-                        top:716-height,width,height,scale,hotspots
+                        // The goal is INSIDE the brick formation, painted behind
+                        // intact pieces, never a detached prop below the board.
+                        top:level.sceneKey==='PARK_GOAL1'?168:716-height,
+                        width,height,scale,hotspots
                     };
                     target.poseFrame=0;
                     target.width=96;
                     target.height=58;
                     target.y=target.goalArtwork.top+hotspots[0].y*scale;
+                }
+                if(level.sceneKey==='ROOM_REVEAL' && kind==='reflect') {
+                    const width=236;
+                    target.bodyArtwork={left:baseX-width/2,top:48,width,
+                        height:width*768/448,frame:0,hop:false};
+                    target.y=target.bodyArtwork.top+target.bodyArtwork.height*.72;
+                    target.width=width*.65;
+                    target.height=120;
                 }
                 this.targets.push(target);
             });
@@ -505,19 +527,65 @@ class GameEngine {
             const previouslyVisible=target.visible;
             const reveal=target.kind==='reflect'?(stage.features.reveal??.3):
                 target.kind==='heart'?(stage.clear):0;
-            target.visible=progress+1e-8>=reveal;
-            if(target.visible && !previouslyVisible && reveal>0)
+            // The character exists from frame one *behind* the bricks, so the
+            // player reveals it by breaking the actual occluding geometry.
+            target.visible=Boolean(target.bodyArtwork)||progress+1e-8>=reveal;
+            const revealed=progress+1e-8>=reveal;
+            if(revealed && !target.revealed && reveal>0)
                 this.onStageEvent?.({type:'reveal',target});
+            target.revealed=revealed;
             if(target.goalArtwork) {
                 target.poseFrame=Math.floor(this.elapsed/.24)%2;
                 const art=target.goalArtwork;
                 const focus=art.hotspots[target.poseFrame];
                 target.x=art.left+focus.x*art.scale;
                 target.y=art.top+focus.y*art.scale;
+            } else if(target.bodyArtwork) {
+                target.bodyArtwork.frame=[3,2,1,0,1,2][Math.floor(this.elapsed*3.2)%6];
             } else {
                 target.x=target.baseX+Math.sin(this.elapsed*1.5+target.index*2.1)*target.moveAmp;
             }
         }
+        for(const actor of this.actors) {
+            const bounce=Math.abs(Math.sin(this.elapsed*5.3));
+            actor.x=actor.baseX+Math.sin(this.elapsed*1.35)*98;
+            actor.bodyArtwork.frame=bounce>.55?1:0; // crouch-only, never upright
+            actor.bodyArtwork.left=actor.x-actor.bodyArtwork.width/2;
+            actor.bodyArtwork.top=148-bounce*29;
+        }
+    }
+
+    // Collision zones track the visible normalized character art. The painted
+    // frames share a 448x768 canvas and the same feet anchor. Hitboxes evolve
+    // with each pose rather than using one static ring under the sprite.
+    bodyContact(ball,art) {
+        const px=(ball.x-art.left)/art.width,py=(ball.y-art.top)/art.height;
+        const head=[.32,.20,.10,.03][art.frame||0];
+        const zones=[
+            {name:'shoulder',cx:.5,cy:head+.16,rx:.24,ry:.095},
+            {name:'waist',cx:.5,cy:head+(1-head)*.51,rx:.17,ry:.10},
+            {name:'hip',cx:.5,cy:head+(1-head)*.72,rx:.27,ry:.105},
+            {name:'thigh',cx:.5,cy:head+(1-head)*.87,rx:.31,ry:.09}
+        ];
+        const padX=ball.radius/art.width,padY=ball.radius/art.height;
+        return zones.find(z=>((px-z.cx)/(z.rx+padX))**2+
+            ((py-z.cy)/(z.ry+padY))**2<=1)||null;
+    }
+
+    bounceOffBody(ball,art,zone) {
+        const speed=Math.max(4,Math.hypot(ball.dx,ball.dy));
+        const offset=Math.max(-1,Math.min(1,(ball.x-(art.left+art.width/2))/(art.width*.32)));
+        const angle={shoulder:.26,waist:.70,hip:.43,thigh:.14}[zone.name];
+        const direction=offset===0?(ball.dx>=0?1:-1):Math.sign(offset);
+        ball.dx=direction*speed*angle;
+        ball.dy=-Math.sqrt(Math.max(1,speed*speed-ball.dx*ball.dx));
+        ball.y-=ball.radius+4; // Re-entering this animated pose cannot double count.
+        if(zone.name==='hip')window.GaiaSound?.brick(1);
+        else window.GaiaSound?.play?.(
+            {shoulder:590,waist:340,thigh:230}[zone.name], 'sine', .13, .045);
+        window.GaiaSound?.voice?.({shoulder:'surprise',waist:'effort',hip:'yelp',thigh:'whimper'}[zone.name]);
+        this.screenShake=Math.max(this.screenShake,zone.name==='hip'?5:2);
+        this.spawnSparkParticles(ball.x,ball.y);
     }
 
     checkStageTargetCollisions(ball,oldY) {
@@ -525,6 +593,17 @@ class GameEngine {
         for(const target of this.targets) {
             if (!target.visible || target.count>=target.required) continue;
             if(this.elapsed-target.lastHit<.8) continue;
+            if(target.bodyArtwork) {
+                const zone=this.bodyContact(ball,target.bodyArtwork);
+                if(!zone)continue;
+                target.lastHit=this.elapsed;target.count++;
+                target.triggered=this.elapsed;target.zone=zone.name;
+                this.score+=150;
+                this.onStageEvent?.({type:'bodyHit',zone:zone.name,target});
+                this.onStageEvent?.({type:'reflect',target});
+                this.bounceOffBody(ball,target.bodyArtwork,zone);
+                break;
+            }
             const dx=Math.abs(ball.x-target.x);
             if(dx>target.width/2+ball.radius*.5) continue;
             let hit=false;
@@ -552,6 +631,15 @@ class GameEngine {
                 if(factor>1) {ball.dx*=factor;ball.dy*=factor;}
             }
             window.GaiaSound?.powerUp();
+            break;
+        }
+        for(const actor of this.actors) {
+            if(this.elapsed-actor.lastHit<.55)continue;
+            const zone=this.bodyContact(ball,actor.bodyArtwork);
+            if(!zone)continue;
+            actor.lastHit=this.elapsed;actor.triggered=this.elapsed;actor.zone=zone.name;
+            this.onStageEvent?.({type:'bodyHit',zone:zone.name,actor});
+            this.bounceOffBody(ball,actor.bodyArtwork,zone);
             break;
         }
     }
@@ -767,10 +855,11 @@ class GameEngine {
             // Paddle collision
             this.checkPaddleCollision(ball);
 
-            // Brick collision
-            this.checkBrickCollisions(ball);
-            // Stage goals are independent of destructible bricks.
-            this.checkStageTargetCollisions(ball,oldY);
+            // An intact foreground brick shields the body behind it.
+            // Otherwise one frame could report both a brick and body hit.
+            const touchedBrick=this.checkBrickCollisions(ball);
+            if(!touchedBrick || this.fireballActive)
+                this.checkStageTargetCollisions(ball,oldY);
         }
     }
 
@@ -806,9 +895,11 @@ class GameEngine {
     }
 
     checkBrickCollisions(ball) {
+        let touched=false;
         for (let i = this.bricks.length - 1; i >= 0; i--) {
             const brick = this.bricks[i];
             if (this.ballBrickCollision(ball, brick)) {
+                touched=true;
                 window.GaiaSound?.brick(brick.hits);
                 if (!this.fireballActive || brick.indestructible) {
                     // Normal bounce
@@ -848,6 +939,7 @@ class GameEngine {
                 if (!this.fireballActive) break;
             }
         }
+        return touched;
     }
 
     ballBrickCollision(ball, brick) {
