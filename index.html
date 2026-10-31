@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#27172c">
+  <title>GAIA CITY · HEART BREAKER</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="scene-backdrop" id="sceneBackdrop"></div>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand"><span>GAIA CITY</span><strong>HEART BREAKER</strong></div>
+      <div class="scoreboard">
+        <div class="stat"><small>STAGE</small><b id="stageNumber">01 / 08</b></div>
+        <div class="stat"><small>SCORE</small><b id="scoreNumber">0</b></div>
+        <div class="stat hearts"><small>LIFE</small><b id="lifeNumber">♥ ♥ ♥</b></div>
+      </div>
+      <div class="top-actions">
+        <button id="soundButton" class="icon-button" aria-label="소리 전환">♫</button>
+        <button id="pauseButton" class="icon-button" aria-label="일시정지">Ⅱ</button>
+      </div>
+    </header>
+    <main class="play-layout">
+      <aside class="character-panel">
+        <div class="speech" id="reaction" aria-live="polite">오늘은 살살 부탁드려요…♡</div>
+        <div class="hero-frame"><img id="heroImage" src="assets/characters/hero-idle.png" alt="가이아 시티 여성 캐릭터"></div>
+        <div class="character-name">GAIA <span>♡</span> WELLNESS</div>
+      </aside>
+      <section class="board-shell" aria-label="블록격파 게임판">
+        <div class="portrait-hud"><strong id="mobileLives">♥ ♥ ♥</strong><span id="mobileStage">STAGE 01</span><span id="mobileScore">SCORE 0</span></div>
+        <div class="board-topline"><span id="locationName">핑크 마트</span><span id="comboText">READY</span></div>
+        <div class="board-frame">
+          <canvas id="gameCanvas" width="800" height="800" aria-label="터치 또는 마우스로 패들을 움직이는 블록격파 게임"></canvas>
+          <div class="board-screen" id="menuScreen">
+            <div class="menu-card">
+              <span class="eyebrow">GAIA CITY ARCADE</span>
+              <div class="menu-logo">HEART<br><em>BREAKER</em></div>
+              <div class="menu-divider">♥　♥　♥</div>
+              <p>유리 블록을 깨고 특별한 능력을 모으세요.</p>
+              <button id="startButton" class="pink-button">GAME START <span>▶</span></button>
+              <button id="continueButton" class="ghost-button" hidden>이어하기</button>
+              <div class="menu-tip">손가락 / 마우스 이동 · 터치 발사 · P 일시정지</div>
+            </div>
+          </div>
+          <div class="board-screen hidden" id="messageScreen">
+            <div class="menu-card result-card">
+              <div id="resultIcon" class="result-icon">♥</div>
+              <h2 id="resultTitle">STAGE CLEAR!</h2>
+              <p id="resultDescription">다음 무대로 이동합니다.</p>
+              <div class="result-score" id="resultScore">0</div>
+              <button id="resultButton" class="pink-button">다음 스테이지 ▶</button>
+              <button id="resultHome" class="ghost-button">메인으로</button>
+            </div>
+          </div>
+          <div class="board-screen hidden" id="pauseScreen">
+            <div class="menu-card pause-card">
+              <h2>PAUSE</h2><p>잠깐 쉬어 가셔도 괜찮아요♡</p>
+              <button id="resumeButton" class="pink-button">계속 플레이 ▶</button>
+              <button id="pauseHome" class="ghost-button">메인으로</button>
+            </div>
+          </div>
+          <div class="launch-hint" id="launchHint">화면을 터치하면 공이 출발합니다　↑</div>
+        </div>
+        <div class="board-footer"><div id="activePowers">● 기본 패들</div><div id="bestScore">BEST 0</div></div>
+        <div class="pocketbar" id="pocketbar">
+          <button class="pocket heart-pocket" id="heartPocket" aria-label="하트 회복 사용"><span class="orb">♥</span><small id="heartCount">×3</small></button>
+          <button class="pocket ice-pocket" id="icePocket" aria-label="얼음 감속 사용"><span class="orb">❄</span><small id="iceCount">×3</small></button>
+          <button class="pocket bolt-pocket" id="boltPocket" aria-label="전기 강화 사용"><span class="orb">ϟ</span><small id="boltCount">×3</small></button>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="js/config-inline.js"></script>
+  <script src="js/gaia-sound.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/sprite-atlas.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

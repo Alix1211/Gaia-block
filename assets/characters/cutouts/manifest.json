@@ -1,0 +1,549 @@
+{
+  "count": 32,
+  "sprites": [
+    {
+      "category": "01_spanking",
+      "name": "S01_brown_red_back",
+      "file": "01_spanking/S01_brown_red_back.png",
+      "source": "01-1000109503.png",
+      "sourceSubjectIndex": 2,
+      "originalBoundingBox": {
+        "id": 3,
+        "x": 548,
+        "y": 13,
+        "width": 364,
+        "height": 678,
+        "cx": 721.1,
+        "cy": 278.4,
+        "area": 108966
+      }
+    },
+    {
+      "category": "01_spanking",
+      "name": "S01_choseon_pink_back",
+      "file": "01_spanking/S01_choseon_pink_back.png",
+      "source": "01-1000109503.png",
+      "sourceSubjectIndex": 3,
+      "originalBoundingBox": {
+        "id": 2,
+        "x": 990,
+        "y": 12,
+        "width": 392,
+        "height": 689,
+        "cx": 1167.8,
+        "cy": 290.7,
+        "area": 113006
+      }
+    },
+    {
+      "category": "01_spanking",
+      "name": "S02_choseon_pink_back",
+      "file": "01_spanking/S02_choseon_pink_back.png",
+      "source": "02-1000109502.png",
+      "sourceSubjectIndex": 1,
+      "originalBoundingBox": {
+        "id": 2,
+        "x": 176,
+        "y": 41,
+        "width": 279,
+        "height": 743,
+        "cx": 318.7,
+        "cy": 402.2,
+        "area": 143425
+      }
+    },
+    {
+      "category": "01_spanking",
+      "name": "S02_brown_red_back",
+      "file": "01_spanking/S02_brown_red_back.png",
+      "source": "02-1000109502.png",
+      "sourceSubjectIndex": 3,
+      "originalBoundingBox": {
+        "id": 3,
+        "x": 737,
+        "y": 45,
+        "width": 261,
+        "height": 739,
+        "cx": 859.9,
+        "cy": 403.1,
+        "area": 131561
+      }
+    },
+    {
+      "category": "01_spanking",
+      "name": "S03_choseon_pink_back",
+      "file": "01_spanking/S03_choseon_pink_back.png",
+      "source": "03-1000109501.png",
+      "sourceSubjectIndex": 1,
+      "originalBoundingBox": {
+        "id": 2,
+        "x": 169,
+        "y": 36,
+        "width": 199,
+        "height": 706,
+        "cx": 268,
+        "cy": 355.8,
+        "area": 83103
+      }
+    },
+    {
+      "category": "01_spanking",
+      "name": "S03_brown_red_back",
+      "file": "01_spanking/S03_brown_red_back.png",
+      "source": "03-1000109501.png",
+      "sourceSubjectIndex": 3,
+      "originalBoundingBox": {
+        "id": 3,
+        "x": 795,
+        "y": 40,
+        "width": 204,
+        "height": 701,
+        "cx": 892.7,
+        "cy": 350.9,
+        "area": 85130
+      }
+    },
+    {
+      "category": "01_spanking",
+      "name": "S04_choseon_pink_bend",
+      "file": "01_spanking/S04_choseon_pink_bend.png",
+      "source": "04-1000109500.png",
+      "sourceSubjectIndex": 1,
+      "originalBoundingBox": {
+        "id": 2,
+        "x": 139,
+        "y": 44,
+        "width": 265,
+        "height": 699,
+        "cx": 272.2,
+        "cy": 351,
+        "area": 96619
+      }
+    },
+    {
+      "category": "01_spanking",
+      "name": "S04_brown_red_bend",
+      "file": "01_spanking/S04_brown_red_bend.png",
+      "source": "04-1000109500.png",
+      "sourceSubjectIndex": 3,
+      "originalBoundingBox": {
+        "id": 3,
+        "x": 741,
+        "y": 45,
+        "width": 282,
+        "height": 693,
+        "cx": 889,
+        "cy": 341.8,
+        "area": 98065
+      }
+    },
+    {
+      "category": "02_leg_pose_minigame",
+      "name": "G01_brown_red_seated",
+      "file": "02_leg_pose_minigame/G01_brown_red_seated.png",
+      "source": "05-1000109497.png",
+      "sourceSubjectIndex": 1,
+      "originalBoundingBox": {
+        "id": 1,
+        "x": 2,
+        "y": 116,
+        "width": 782,
+        "height": 898,
+        "cx": 393.4,
+        "cy": 553.8,
+        "area": 221117
+      }
+    },
+    {
+      "category": "02_leg_pose_minigame",
+      "name": "G02_choseon_pink_seated",
+      "file": "02_leg_pose_minigame/G02_choseon_pink_seated.png",
+      "source": "06-1000109495.png",
+      "sourceSubjectIndex": 1,
+      "originalBoundingBox": {
+        "id": 1,
+        "x": 3,
+        "y": 34,
+        "width": 778,
+        "height": 1062,
+        "cx": 395.2,
+        "cy": 545.3,
+        "area": 279639
+      }
+    },
+    {
+      "category": "02_leg_pose_minigame",
+      "name": "G03_brown_red_splits",
+      "file": "02_leg_pose_minigame/G03_brown_red_splits.png",
+      "source": "07-1000109492.png",
+      "sourceSubjectIndex": 1,
+      "originalBoundingBox": {
+        "id": 1,
+        "x": 11,
+        "y": 45,
+        "width": 1148,
+        "height": 563,
+        "cx": 585.8,
+        "cy": 404,
+        "area": 170502
+      }
+    },
+    {
+      "category": "02_leg_pose_minigame",
+      "name": "G04_choseon_pink_splits",
+      "file": "02_leg_pose_minigame/G04_choseon_pink_splits.png",
+      "source": "08-1000109491.png",
+      "sourceSubjectIndex": 1,
+      "originalBoundingBox": {
+        "id": 1,
+        "x": 3,
+        "y": 10,
+        "width": 1162,
+        "height": 604,
+        "cx": 585.3,
+        "cy": 404.8,
+        "area": 176010
+      }
+    },
+    {
+      "category": "03_portraits",
+      "name": "P01_choseon_pink_01",
+      "file": "03_portraits/P01_choseon_pink_01.png",
+      "source": "01-1000109472.png",
+      "sourceSubjectIndex": 1,
+      "originalBoundingBox": {
+        "id": 5,
+        "x": 5,
+        "y": 11,
+        "width": 335,
+        "height": 693,
+        "cx": 174,
+        "cy": 365.8,
+        "area": 150069
+      }
+    },
+    {
+      "category": "03_portraits",
+      "name": "P01_choseon_pink_02",
+      "file": "03_portraits/P01_choseon_pink_02.png",
+      "source": "01-1000109472.png",
+      "sourceSubjectIndex": 2,
+      "originalBoundingBox": {
+        "id": 1,
+        "x": 360,
+        "y": 0,
+        "width": 316,
+        "height": 704,
+        "cx": 524.2,
+        "cy": 361.7,
+        "area": 149230
+      }
+    },
+    {
+      "category": "03_portraits",
+      "name": "P01_choseon_pink_03",
+      "file": "03_portraits/P01_choseon_pink_03.png",
+      "source": "01-1000109472.png",
+      "sourceSubjectIndex": 3,
+      "originalBoundingBox": {
+        "id": 6,
+        "x": 726,
+        "y": 24,
+        "width": 330,
+        "height": 680,
+        "cx": 886.8,
+        "cy": 370.8,
+        "area": 149128
+      }
+    },
+    {
+      "category": "03_portraits",
+      "name": "P01_choseon_pink_04",
+      "file": "03_portraits/P01_choseon_pink_04.png",
+      "source": "01-1000109472.png",
+      "sourceSubjectIndex": 4,
+      "originalBoundingBox": {
+        "id": 3,
+        "x": 1098,
+        "y": 0,
+        "width": 303,
+        "height": 704,
+        "cx": 1246.2,
+        "cy": 370.1,
+        "area": 148673
+      }
+    },
+    {
+      "category": "03_portraits",
+      "name": "P02_brown_red_01",
+      "file": "03_portraits/P02_brown_red_01.png",
+      "source": "02-1000109475.png",
+      "sourceSubjectIndex": 1,
+      "originalBoundingBox": {
+        "id": 2,
+        "x": 0,
+        "y": 7,
+        "width": 357,
+        "height": 697,
+        "cx": 185.7,
+        "cy": 347.3,
+        "area": 148827
+      }
+    },
+    {
+      "category": "03_portraits",
+      "name": "P02_brown_red_02",
+      "file": "03_portraits/P02_brown_red_02.png",
+      "source": "02-1000109475.png",
+      "sourceSubjectIndex": 2,
+      "originalBoundingBox": {
+        "id": 1,
+        "x": 354,
+        "y": 5,
+        "width": 346,
+        "height": 699,
+        "cx": 532.6,
+        "cy": 344.8,
+        "area": 146747
+      }
+    },
+    {
+      "category": "03_portraits",
+      "name": "P02_brown_red_03",
+      "file": "03_portraits/P02_brown_red_03.png",
+      "source": "02-1000109475.png",
+      "sourceSubjectIndex": 3,
+      "originalBoundingBox": {
+        "id": 4,
+        "x": 719,
+        "y": 44,
+        "width": 357,
+        "height": 660,
+        "cx": 906.2,
+        "cy": 364.8,
+        "area": 141343
+      }
+    },
+    {
+      "category": "03_portraits",
+      "name": "P02_brown_red_04",
+      "file": "03_portraits/P02_brown_red_04.png",
+      "source": "02-1000109475.png",
+      "sourceSubjectIndex": 4,
+      "originalBoundingBox": {
+        "id": 3,
+        "x": 1086,
+        "y": 9,
+        "width": 322,
+        "height": 695,
+        "cx": 1262.2,
+        "cy": 349,
+        "area": 145597
+      }
+    },
+    {
+      "category": "03_portraits",
+      "name": "P03_choseon_royal_01",
+      "file": "03_portraits/P03_choseon_royal_01.png",
+      "source": "03-1000109473.png",
+      "sourceSubjectIndex": 1,
+      "originalBoundingBox": {
+        "id": 5,
+        "x": 10,
+        "y": 16,
+        "width": 422,
+        "height": 863,
+        "cx": 220.4,
+        "cy": 483.2,
+        "area": 256260
+      }
+    },
+    {
+      "category": "03_portraits",
+      "name": "P03_choseon_royal_02",
+      "file": "03_portraits/P03_choseon_royal_02.png",
+      "source": "03-1000109473.png",
+      "sourceSubjectIndex": 2,
+      "originalBoundingBox": {
+        "id": 1,
+        "x": 456,
+        "y": 0,
+        "width": 421,
+        "height": 881,
+        "cx": 661.3,
+        "cy": 479.4,
+        "area": 259243
+      }
+    },
+    {
+      "category": "03_portraits",
+      "name": "P03_choseon_royal_03",
+      "file": "03_portraits/P03_choseon_royal_03.png",
+      "source": "03-1000109473.png",
+      "sourceSubjectIndex": 3,
+      "originalBoundingBox": {
+        "id": 8,
+        "x": 905,
+        "y": 32,
+        "width": 422,
+        "height": 847,
+        "cx": 1115.4,
+        "cy": 491.7,
+        "area": 262159
+      }
+    },
+    {
+      "category": "03_portraits",
+      "name": "P03_choseon_royal_04",
+      "file": "03_portraits/P03_choseon_royal_04.png",
+      "source": "03-1000109473.png",
+      "sourceSubjectIndex": 4,
+      "originalBoundingBox": {
+        "id": 2,
+        "x": 1330,
+        "y": 0,
+        "width": 435,
+        "height": 878,
+        "cx": 1557.5,
+        "cy": 499.3,
+        "area": 279423
+      }
+    },
+    {
+      "category": "03_portraits",
+      "name": "P04_brown_jacket_back",
+      "file": "03_portraits/P04_brown_jacket_back.png",
+      "source": "04-1000109474.png",
+      "sourceSubjectIndex": 2,
+      "originalBoundingBox": {
+        "id": 11,
+        "x": 672,
+        "y": 54,
+        "width": 422,
+        "height": 833,
+        "cx": 883.7,
+        "cy": 455.5,
+        "area": 220935
+      }
+    },
+    {
+      "category": "03_portraits",
+      "name": "P04_choseon_royal_back",
+      "file": "03_portraits/P04_choseon_royal_back.png",
+      "source": "04-1000109474.png",
+      "sourceSubjectIndex": 3,
+      "originalBoundingBox": {
+        "id": 1,
+        "x": 1182,
+        "y": 14,
+        "width": 533,
+        "height": 873,
+        "cx": 1445.5,
+        "cy": 517.3,
+        "area": 303059
+      }
+    },
+    {
+      "category": "03_portraits",
+      "name": "P05_brown_jacket_01",
+      "file": "03_portraits/P05_brown_jacket_01.png",
+      "source": "05-1000109477.png",
+      "sourceSubjectIndex": 1,
+      "originalBoundingBox": {
+        "id": 2,
+        "x": 0,
+        "y": 14,
+        "width": 450,
+        "height": 873,
+        "cx": 234.9,
+        "cy": 435.1,
+        "area": 234256
+      }
+    },
+    {
+      "category": "03_portraits",
+      "name": "P05_brown_jacket_02",
+      "file": "03_portraits/P05_brown_jacket_02.png",
+      "source": "05-1000109477.png",
+      "sourceSubjectIndex": 2,
+      "originalBoundingBox": {
+        "id": 1,
+        "x": 446,
+        "y": 11,
+        "width": 451,
+        "height": 876,
+        "cx": 675.5,
+        "cy": 434.9,
+        "area": 230574
+      }
+    },
+    {
+      "category": "03_portraits",
+      "name": "P05_brown_jacket_03",
+      "file": "03_portraits/P05_brown_jacket_03.png",
+      "source": "05-1000109477.png",
+      "sourceSubjectIndex": 3,
+      "originalBoundingBox": {
+        "id": 4,
+        "x": 903,
+        "y": 58,
+        "width": 452,
+        "height": 829,
+        "cx": 1139,
+        "cy": 457.1,
+        "area": 221135
+      }
+    },
+    {
+      "category": "03_portraits",
+      "name": "P05_brown_jacket_04",
+      "file": "03_portraits/P05_brown_jacket_04.png",
+      "source": "05-1000109477.png",
+      "sourceSubjectIndex": 4,
+      "originalBoundingBox": {
+        "id": 3,
+        "x": 1360,
+        "y": 15,
+        "width": 414,
+        "height": 872,
+        "cx": 1585.9,
+        "cy": 438.4,
+        "area": 228565
+      }
+    },
+    {
+      "category": "03_portraits",
+      "name": "P06_brown_jacket_cheer",
+      "file": "03_portraits/P06_brown_jacket_cheer.png",
+      "source": "06-1000109476.png",
+      "sourceSubjectIndex": 2,
+      "originalBoundingBox": {
+        "id": 4,
+        "x": 562,
+        "y": 48,
+        "width": 423,
+        "height": 958,
+        "cx": 773.5,
+        "cy": 423.1,
+        "area": 180590
+      }
+    },
+    {
+      "category": "03_portraits",
+      "name": "P06_choseon_royal_cheer",
+      "file": "03_portraits/P06_choseon_royal_cheer.png",
+      "source": "06-1000109476.png",
+      "sourceSubjectIndex": 3,
+      "originalBoundingBox": {
+        "id": 2,
+        "x": 960,
+        "y": 11,
+        "width": 557,
+        "height": 1006,
+        "cx": 1250.2,
+        "cy": 547,
+        "area": 362112
+      }
+    }
+  ]
+}
