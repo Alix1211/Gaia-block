@@ -15,6 +15,7 @@ function element(id){
   const listeners={};
   const classes=new Set();
   const e={id,textContent:'',src:'',dataset:{},style:{},hidden:false,offsetWidth:123,
+    setAttribute(name,value){this[name]=value;},
     classList:{add:s=>classes.add(s),remove:s=>classes.delete(s),contains:s=>classes.has(s),toggle(s,bool){if(bool)classes.add(s);else classes.delete(s);}},
     addEventListener:(name,fn)=>listeners[name]=fn,
     click:()=>listeners.click?.(),
@@ -31,15 +32,36 @@ const document={getElementById:element,addEventListener:noop};
 const saved=new Map();
 const localStorage={getItem:k=>saved.get(k)||null,setItem:(k,v)=>saved.set(k,v)};
 const context=vm.createContext({window,document,Image:MockImage,localStorage,console,performance:{now:()=>1000},requestAnimationFrame:()=>1,cancelAnimationFrame:noop,setTimeout,clearTimeout,setInterval,clearInterval});
-const scripts=['config-inline','gaia-sound','engine','sprite-atlas','renderer','main'];
+const scripts=['config-inline','stages40','dialogues-data','gaia-sound','engine','sprite-atlas','block-sprites','renderer','main'];
 for(const name of scripts)vm.runInContext(fs.readFileSync(path.join(root,'js',name+'.js'),'utf8'),context);
 await new Promise(resolve=>setImmediate(resolve));
 const e=window.gaiaTestEngine;
 assert(e,'Game did not start');
 assert.equal(e.state,'menu');
+element('goalDemoButton').click();
+assert.equal(e.levelsConfig.levels[e.currentLevel].sceneKey,'PARK_GOAL1','Goal showcase must start the right level');
+assert(e.targets[0]?.goalArtwork,'Goal showcase is missing the animated target');
+element('dialogueStart').click();
+e.targets[0].count=e.targets[0].required;
+e.bricks=e.bricks.filter(b=>b.indestructible).concat(e.bricks.filter(b=>!b.indestructible).slice(0,13));
+e.update(16.67);
+assert.equal(e.state,'levelComplete','Goal demo does not complete');
+element('resultButton').click();
+assert.equal(e.state,'menu','Showcase must return to the menu');
+assert(element('continueButton').hidden,'Showcase may not unlock unfinished main stages');
 element('startButton').click();
 assert.equal(e.state,'playing');
 assert(e.ballAttached);
+assert(!element('dialogueScreen').classList.contains('hidden'),'Opening dialogue overlay missing');
+element('settingsButton').click();
+assert.equal(e.state,'paused','Settings must freeze game');
+element('hardcoreMode').click();
+assert.equal(localStorage.getItem('gaia-heart-breaker-dialogue-mode-v1'),'hardcore');
+assert(element('dialogueMale').textContent.includes('암캐'),'User-provided dialogue not selected');
+element('settingsClose').click();
+assert.equal(e.state,'playing');
+element('dialogueStart').click();
+assert(element('dialogueScreen').classList.contains('hidden'));
 events.touchstart({preventDefault:noop,touches:[{clientX:400,clientY:720}]});
 assert(!e.ballAttached,'Tap failed to launch ball');
 element('pauseButton').click();
@@ -72,4 +94,4 @@ element('pauseButton').click();
 element('pauseHome').click();
 assert.equal(e.state,'menu');
 assert(!element('continueButton').hidden,'Continue should unlock after clearing first level');
-console.log(JSON.stringify({result:'PASS',start:true,touchLaunch:true,pauseResume:true,stageClearWithoutRender:true,stageAdvance:true,gameOverRetry:true,renderErrorRecovery:true,saveUnlock:true}));
+console.log(JSON.stringify({result:'PASS',goalShowcase:true,showcaseDoesNotUnlock:true,start:true,touchLaunch:true,pauseResume:true,stageClearWithoutRender:true,stageAdvance:true,gameOverRetry:true,renderErrorRecovery:true,saveUnlock:true}));

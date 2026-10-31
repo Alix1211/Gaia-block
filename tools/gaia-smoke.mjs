@@ -19,16 +19,18 @@ const gradients={addColorStop:noop};
 const fakeCtx=new Proxy({}, {get(o,k){if(k==='createLinearGradient'||k==='createRadialGradient')return()=>gradients;if(k==='measureText')return text=>({width:String(text).length*10});return o[k]??noop;},set(o,k,v){o[k]=v;return true;}});
 const canvas={width:800,height:800,style:{},getContext:()=>fakeCtx,addEventListener:(name,fn)=>listeners[name]=fn,getBoundingClientRect:()=>({left:0,top:0,width:800,height:800})};
 const window={addEventListener:noop,GaiaSound:{brick:noop,lose:noop,paddle:noop,powerUp:noop}};
-const context=vm.createContext({window,console,performance:{now:()=>1000},requestAnimationFrame:()=>1,cancelAnimationFrame:noop,Math});
-for(const script of ['js/config-inline.js','js/engine.js','js/renderer.js']) vm.runInContext(fs.readFileSync(path.join(base,script),'utf8'),context);
+class MockImage {constructor(){this.complete=false;this.naturalWidth=0;}set src(v){this._src=v;}get src(){return this._src;}}
+const context=vm.createContext({window,Image:MockImage,console,performance:{now:()=>1000},requestAnimationFrame:()=>1,cancelAnimationFrame:noop,Math});
+for(const script of ['js/config-inline.js','js/stages40.js','js/engine.js','js/renderer.js']) vm.runInContext(fs.readFileSync(path.join(base,script),'utf8'),context);
 const Engine=vm.runInContext('GameEngine',context),Renderer=vm.runInContext('Renderer',context);
 const engine=new Engine(canvas);
 await engine.loadConfigs();
-assert.equal(engine.levelsConfig.levels.length,8,'Expected eight established stages');
+engine.levelsConfig.levels=window.GAIA_40_STAGES;
+assert.equal(engine.levelsConfig.levels.length,40,'Expected forty authored stages');
 engine.selectedShip={...engine.shipsConfig.ships[1],width:138,height:25};
 window.GaiaArt={backgrounds:[],balls:{draw:()=>false},bricks:{draw:()=>false}};
 const renderer=new Renderer(engine);
-for(let i=0;i<8;i++){
+for(let i=0;i<40;i++){
   engine.loadLevel(i);
   assert(engine.bricks.length>8,`Level ${i+1} is empty`);
   assert(engine.bricks.every(b=>b.x>=0&&b.x+b.width<=800),'A block is outside square board');
@@ -61,4 +63,4 @@ engine.state='paused';
 const stationary=engine.balls[0].x;
 engine.update(1000);
 assert.equal(engine.balls[0].x,stationary,'Game must freeze when paused');
-console.log(JSON.stringify({result:'PASS',stages:8,blocks:'collision/tintable art',powers:'multiball/laser/expansion',squareBoard:true,offlineAssets:true,pause:true},null,2));
+console.log(JSON.stringify({result:'PASS',stages:40,blocks:'collision/tintable art',powers:'multiball/laser/expansion',squareBoard:true,offlineAssets:true,pause:true},null,2));

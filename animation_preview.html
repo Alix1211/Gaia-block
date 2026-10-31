@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GAIA · 캐릭터 애니메이션 검수실</title>
+  <style>
+    :root{font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif;color:#fff7fc;background:#191328}
+    *{box-sizing:border-box}body{margin:0;padding:25px max(15px,3vw) 60px;background:radial-gradient(circle at 20% -10%,#52315d 0,transparent 38%),#191328}
+    h1{margin:0;font-size:clamp(21px,2.7vw,36px);letter-spacing:-.05em}h2{font-size:19px;margin:0 0 13px}p{line-height:1.6;color:#e5d7e9}
+    .top{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:24px}.tag{border:1px solid #bf7797;color:#ffd0e5;padding:7px 12px;border-radius:99px;font-size:12px}
+    .controls{display:flex;flex-wrap:wrap;gap:10px 15px;margin-bottom:18px}.controls label{display:grid;gap:5px;font-size:12px;color:#d6c0d3}
+    select,input{font:inherit;accent-color:#f582b6;background:#30243e;color:#fff;border:1px solid #74526c;border-radius:9px;padding:8px 10px;min-width:130px}
+    .columns{display:grid;grid-template-columns:minmax(320px,1fr) minmax(340px,1.05fr);gap:18px;align-items:start}
+    .panel{border:1px solid #61455f;background:rgba(32,23,48,.93);border-radius:20px;padding:18px;box-shadow:0 18px 40px #10071c70}
+    .gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.tile{background:linear-gradient(135deg,#ffe3ee,#f1d2e7);border:2px solid #eaa4bf;border-radius:14px;min-width:0;padding:10px;overflow:hidden}
+    .tile img{width:100%;height:250px;object-fit:contain;display:block}.tile small{display:block;text-align:center;font-weight:750;color:#57203e;margin-top:5px}
+    .tile[hidden]{display:none}.wide{grid-column:1/-1}.wide img{height:290px}
+    .stage-frame{width:100%;max-width:800px;margin:auto;aspect-ratio:1;position:relative;background:linear-gradient(180deg,#53335e,#8e638c 47%,#ce97b2);border:2px solid #f5a4cc;border-radius:11px;overflow:hidden}
+    .stage-frame:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 49.92%,#ffffff22 50%,transparent 50.08%);pointer-events:none}
+    .brick{position:absolute;border:1px solid #fce0ef;border-radius:7px;background:linear-gradient(145deg,#f5a2c7,#ba3c85);box-shadow:0 1px 4px #521e4b}
+    .brick.jelly{background:linear-gradient(135deg,#b9b3ff,#7c67b9)}.brick.wood{background:linear-gradient(135deg,#efc28f,#af724f)}.brick.metal{background:linear-gradient(135deg,#dae4ed,#7480a4)}
+    .block-line{position:absolute;left:0;right:0;border-bottom:2px dashed #f2ef8080;pointer-events:none}
+    #stageActor{position:absolute;object-fit:contain;transform:translateX(-50%);transition:width .12s,left .12s,top .12s;filter:drop-shadow(0 8px 4px #4c213b50)}
+    #hitBox{position:absolute;border:2px dashed #ffdf61;background:#ffb30020;border-radius:50%;transform:translate(-50%,-50%);width:13.5%;height:8.5%}
+    #hitBox:after{content:"충돌 판정";position:absolute;top:100%;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:10px;color:#fff3bd;background:#4d3563e0;padding:2px 5px;border-radius:5px}
+    .paddle{position:absolute;width:13%;height:2.5%;background:#fff0f6;left:43.5%;top:93.75%;border-radius:8px;box-shadow:0 0 10px #fff}
+    .info{font-size:13px;background:#392941;border:1px solid #76556d;padding:11px 13px;border-radius:12px;margin-top:10px;line-height:1.6}
+    .warn{color:#ffd8a2}.good{color:#b1efcf}.mini{font-size:12px;color:#bdb1d0}.notes{padding-left:20px;line-height:1.65;color:#e5d7e9}
+    @media(max-width:990px){.columns{grid-template-columns:1fr}.tile img{height:220px}}@media(max-width:480px){.gallery{grid-template-columns:1fr}.tile img{height:210px}.tile.wide{grid-column:auto}}
+  </style>
+</head>
+<body>
+  <div class="top"><div><h1>GAIA · 캐릭터 애니메이션 검수실</h1><p>원본 보존형 PNG 시트 + 실제 GIF 움직임 · 골대 배치 사전 검토</p></div><span class="tag">게임 미연결 · 에셋 검수 단계</span></div>
+  <div class="controls">
+    <label>캐릭터<select id="who"><option value="brown">갈색 머리 · 빨강</option><option value="choseon">초선 · 분홍</option></select></label>
+    <label>스쿼트 동작<select id="motion"><option value="squat">스쿼트 (1·2·3·2·1)</option><option value="squat-jump">쪼그려 뛰기 (도약 포함)</option></select></label>
+    <label>게임판 블록 행<select id="rows"><option>7</option><option selected>8</option><option>9</option><option>10</option></select></label>
+    <label>골대 기준 높이 <span id="heightText">660</span><input type="range" id="targetY" min="590" max="710" value="660" step="5"></label>
+    <label>캐릭터 표시 폭 <span id="sizeText">240</span><input type="range" id="size" min="110" max="320" value="240" step="10"></label>
+    <label>판 검토 동작<select id="gameMotion"><option value="goal">엎드린 골대</option><option value="back">후면 스쿼트</option><option value="front">정면 스쿼트</option></select></label>
+  </div>
+  <main class="columns">
+    <section class="panel"><h2>원본에서 분리한 재생 상태</h2><div class="gallery">
+      <div class="tile"><img id="frontGif" alt="정면 스쿼트 애니메이션"><small>정면 · 선택한 스쿼트 상태</small></div>
+      <div class="tile"><img id="backGif" alt="후면 스쿼트 애니메이션"><small>후면 · 선택한 스쿼트 상태</small></div>
+      <div class="tile wide"><img id="goalGif" alt="엎드린 골대 움직임"><small>엎드린 뒤쪽 골대 · 낮음 ↔ 높음</small></div>
+      <div class="tile wide"><img id="reaction" alt="뒤돌아보는 반응 컷"><small>별도 반응 정지 컷 · 반복 동작과 분리</small></div>
+    </div><p class="mini">PNG 원본 프레임은 <code>assets/characters/animations/</code>에, 원본 이미지 복사본은 <code>source_sheets/</code>에 있습니다.</p></section>
+    <section class="panel"><h2>800×800 실제 좌표 기준 골대 영역 검토</h2>
+      <div class="stage-frame" id="stage"><div id="bricks"></div><div id="blockLine" class="block-line"></div><img id="stageActor" alt="가상의 게임판 캐릭터"><div id="hitBox"></div><div class="paddle"></div></div>
+      <div class="info" id="stageStatus"></div>
+      <ol class="notes"><li>블록은 현재 게임의 실제 치수(10열·73×32·행 간격 44)를 사용한 배치 예시입니다. 실제 스테이지 데이터는 아닙니다.</li><li>현재 엔진의 골대 충돌 판정은 움직이는 캐릭터 그림과 별개입니다. 그림에 맞춘 판정점 추적이 필요합니다.</li><li>겹침이 표시되면 골대 전용 판에서 블록 행 수를 줄이거나 캐릭터 시작 높이를 재조정할 후보입니다.</li></ol>
+    </section>
+  </main>
+<script>
+  const $ = id => document.getElementById(id);
+  const base='assets/characters/animations/';
+  const sizeOf={front:448/768,back:448/768,goal:832/928};
+  function update(){
+    const who=$('who').value, motion=$('motion').value, rows=Number($('rows').value),targetY=Number($('targetY').value),width=Number($('size').value),kind=$('gameMotion').value;
+    $('heightText').textContent=targetY;$('sizeText').textContent=width;
+    $('frontGif').src=`${base}${who}/front/${motion}.gif`;
+    $('backGif').src=`${base}${who}/back/${motion}.gif`;
+    $('goalGif').src=`${base}${who}/goal/goal-rock.gif`;
+    $('reaction').src=`${base}${who}/goal/look-back.png`;
+    const img=kind==='goal'?`${base}${who}/goal/goal-rock.gif`:`${base}${who}/${kind}/${motion}.gif`;
+    const charHeight=width/sizeOf[kind],top=targetY-charHeight;
+    const actor=$('stageActor');actor.src=img;actor.style.left='50%';actor.style.top=(top/800*100)+'%';actor.style.width=(width/800*100)+'%';
+    const hit=$('hitBox');hit.style.left='50%';hit.style.top=(targetY/800*100)+'%';
+    const bricks=$('bricks');bricks.replaceChildren();
+    for(let r=0;r<rows;r++) for(let c=0;c<10;c++) {
+      if((r===2||r===5)&&(c===4||c===5))continue;
+      const block=document.createElement('div');block.className='brick '+(['','jelly','wood','metal'][(c+r)%4]);
+      block.style.left=(17+c*77)/800*100+'%';block.style.top=(72+r*44)/800*100+'%';block.style.width=73/800*100+'%';block.style.height=32/800*100+'%';bricks.append(block);
+    }
+    const blockBottom=72+(rows-1)*44+32;
+    $('blockLine').style.top=blockBottom/800*100+'%';
+    const overlap=Math.max(0,Math.round(blockBottom-top));
+    const paddleGap=750-(targetY+34);
+    $('stageStatus').innerHTML=`블록 마지막 행 하단 <b>y=${blockBottom}</b> · 캐릭터 상단 <b>y=${Math.round(top)}</b> · 골대 중심 <b>y=${targetY}</b><br><span class="${overlap?'warn':'good'}">${overlap?`캐릭터/블록 세로영역 ${overlap}px 겹침 — 연출 계층 또는 배치 조정 필요`:'캐릭터와 블록 세로영역 분리됨'}</span> · <span class="${paddleGap<0?'warn':'good'}">패들까지 판정 여유 ${paddleGap}px</span>`;
+  }
+  for(const id of ['who','motion','rows','targetY','size','gameMotion']) $(id).addEventListener('input',update);
+  update();
+</script>
+</body>
+</html>

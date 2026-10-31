@@ -50,7 +50,9 @@ window.GaiaSound = {
         this.oldMusic = null;
     },
     bpmForStage(stageIndex) {
-        return stageIndex < 2 ? 90 : stageIndex < 5 ? 120 : 150;
+        // Five rounds per venue; retain the original 8-venue soundtrack order.
+        const venue=Math.floor(stageIndex/5);
+        return venue<2?90:venue<5?120:150;
     },
     start(stageIndex = 0) {
         this.init();

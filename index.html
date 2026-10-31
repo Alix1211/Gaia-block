@@ -13,11 +13,12 @@
     <header class="topbar">
       <div class="brand"><span>GAIA CITY</span><strong>HEART BREAKER</strong></div>
       <div class="scoreboard">
-        <div class="stat"><small>STAGE</small><b id="stageNumber">01 / 08</b></div>
+        <div class="stat"><small>STAGE</small><b id="stageNumber">01 / 40</b></div>
         <div class="stat"><small>SCORE</small><b id="scoreNumber">0</b></div>
         <div class="stat hearts"><small>LIFE</small><b id="lifeNumber">♥ ♥ ♥</b></div>
       </div>
       <div class="top-actions">
+        <button id="settingsButton" class="icon-button" aria-label="게임 설정">⚙</button>
         <button id="soundButton" class="icon-button" aria-label="소리 전환">♫</button>
         <button id="pauseButton" class="icon-button" aria-label="일시정지">Ⅱ</button>
       </div>
@@ -25,6 +26,7 @@
     <main class="play-layout">
       <aside class="character-panel">
         <div class="speech" id="reaction" aria-live="polite">오늘은 살살 부탁드려요…♡</div>
+        <div class="event-dialogue hidden" id="eventDialogue" aria-live="polite"></div>
         <div class="hero-frame"><img id="heroImage" src="assets/characters/hero-idle.png" alt="가이아 시티 여성 캐릭터"></div>
         <div class="character-name">GAIA <span>♡</span> WELLNESS</div>
       </aside>
@@ -33,13 +35,15 @@
         <div class="board-topline"><span id="locationName">핑크 마트</span><span id="comboText">READY</span></div>
         <div class="board-frame">
           <canvas id="gameCanvas" width="800" height="800" aria-label="터치 또는 마우스로 패들을 움직이는 블록격파 게임"></canvas>
+          <div class="goal-status" id="goalStatus" aria-live="off"></div>
           <div class="board-screen" id="menuScreen">
             <div class="menu-card">
               <span class="eyebrow">GAIA CITY ARCADE</span>
               <div class="menu-logo">HEART<br><em>BREAKER</em></div>
               <div class="menu-divider">♥　♥　♥</div>
-              <p>유리 블록을 깨고 특별한 능력을 모으세요.</p>
+              <p>8개 장소 · 5단계 난도 · 총 40판의 특별한 챌린지</p>
               <button id="startButton" class="pink-button">GAME START <span>▶</span></button>
+              <button id="goalDemoButton" class="ghost-button">♥ 골대 시범판 바로하기</button>
               <button id="continueButton" class="ghost-button" hidden>이어하기</button>
               <div class="menu-tip">손가락 / 마우스 이동 · 터치 발사 · P 일시정지</div>
             </div>
@@ -61,6 +65,24 @@
               <button id="pauseHome" class="ghost-button">메인으로</button>
             </div>
           </div>
+          <div class="board-screen hidden" id="dialogueScreen">
+            <div class="menu-card dialogue-card">
+              <span class="eyebrow" id="dialogueStage">STAGE 01</span>
+              <div class="dialogue-line male-line"><small>진행관</small><p id="dialogueMale"></p></div>
+              <div class="dialogue-line female-line"><small>참가자</small><p id="dialogueFemale"></p></div>
+              <button id="dialogueStart" class="pink-button">시작 ▶</button>
+            </div>
+          </div>
+          <div class="board-screen hidden" id="settingsScreen">
+            <div class="menu-card settings-card">
+              <span class="eyebrow">GAIA CITY · OPTIONS</span>
+              <h2>대사 모드</h2>
+              <p>게임 난도와 진행 기록은 그대로 유지됩니다.</p>
+              <button id="normalMode" class="choice-button" aria-pressed="true">NORMAL</button>
+              <button id="hardcoreMode" class="choice-button" aria-pressed="false">EX-HARDCORE</button>
+              <button id="settingsClose" class="ghost-button">돌아가기</button>
+            </div>
+          </div>
           <div class="launch-hint" id="launchHint">화면을 터치하면 공이 출발합니다　↑</div>
         </div>
         <div class="board-footer"><div id="activePowers">● 기본 패들</div><div id="bestScore">BEST 0</div></div>
@@ -73,9 +95,12 @@
     </main>
   </div>
   <script src="js/config-inline.js"></script>
+  <script src="js/stages40.js"></script>
+  <script src="js/dialogues-data.js"></script>
   <script src="js/gaia-sound.js"></script>
   <script src="js/engine.js"></script>
   <script src="js/sprite-atlas.js"></script>
+  <script src="js/block-sprites.js"></script>
   <script src="js/renderer.js"></script>
   <script src="js/main.js"></script>
 </body>

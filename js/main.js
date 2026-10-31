@@ -6,7 +6,11 @@
     const engine = new GameEngine(canvas);
     await engine.loadConfigs();
 
-    // Keep the eight original stage layouts and physics, replace the spaceship
+    if (window.GAIA_40_STAGES?.length===40) {
+        engine.levelsConfig.levels=window.GAIA_40_STAGES;
+    }
+
+    // Keep existing controls, paddle, powers and sound; use authored forty rounds.
     // selection with one readable paddle whose upgrades appear in play.
     const standardShip = engine.shipsConfig.ships[1];
     engine.selectedShip = { ...standardShip, id:'gaia', name:'가이아 패들', width:138, height:25, speed:12 };
@@ -29,12 +33,66 @@
         ice:()=>engine.powersConfig.powers.find(p=>p.effect==='slow'),
         bolt:()=>engine.powersConfig.powers.find(p=>p.effect==='electric')
     };
-    const storageKey = 'gaia-heart-breaker-arcade-v1';
+    const storageKey = 'gaia-heart-breaker-40-v1';
+    const dialogueKey = 'gaia-heart-breaker-dialogue-mode-v1';
+    let dialogueMode='normal';
+    try { if(localStorage.getItem(dialogueKey)==='hardcore') dialogueMode='hardcore'; } catch (_) {}
+    let stageDialogueShown=false,eventExpires=0,settingsWasPlaying=false,goalShowcase=false;
+    const triggerByScene={
+        MART_BASIC:'solid',MART_JELLY:'jelly',MART_METAL:'metal',MART_BOMB:'bomb',MART_FINALE:'quickChain',
+        PARK_GOAL1:'soccer',PARK_JELLY:'soccer',PARK_MOVING:'soccer',PARK_DEFENSE:'soccer',PARK_FINAL:'soccer',
+        ROOM_REVEAL:'reveal',ROOM_TWICE:'reflect',ROOM_DUO:'reflect',ROOM_GUARD:'reflect',ROOM_FINAL:'reflect',
+        STUDIO_TAKE1:'basket',STUDIO_MOVE:'basket',STUDIO_DOUBLE:'basket',STUDIO_NG:'basket',STUDIO_FINAL:'basket',
+        CASINO_BET:'metalBarrier',CASINO_DOUBLE:'metalBarrier',CASINO_POISON:'poison',
+        CASINO_TIMING:'metalBarrier',CASINO_FINAL:'jackpot',
+        FARM_PIN1:'pin',FARM_PIN2:'pin',FARM_PIN3:'pin',FARM_MOVE:'pin',FARM_FINAL:'pin',
+        CLUB_NEON:'neon',CLUB_CHAIN:'lightning',CLUB_SQUAT:'reflect',CLUB_FAST:'reflect',CLUB_FINAL:'reflect',
+        POLICE_TEST:'solid',POLICE_BARRIER:'metalBarrier',POLICE_DUAL:'basket',
+        POLICE_PRACTICAL:'reflect',POLICE_ENDING:'heart'
+    };
+    function currentDialogue() {
+        const key=engine.levelsConfig.levels[engine.currentLevel]?.sceneKey;
+        return window.GAIA_DIALOGUES?.[dialogueMode]?.[key]||null;
+    }
+    function showStageIntro() {
+        const entry=currentDialogue();
+        if(!entry) return;
+        const level=engine.levelsConfig.levels[engine.currentLevel];
+        $('dialogueStage').textContent=`${String(level.stageId).padStart(2,'0')} / 40 · ${level.name}`;
+        $('dialogueMale').textContent=entry.male;
+        $('dialogueFemale').textContent=entry.female;
+        show('dialogueScreen');
+    }
+    function showStageEvent(line) {
+        if(!line) return;
+        $('eventDialogue').textContent=line;
+        $('eventDialogue').classList.remove('hidden');
+        eventExpires=performance.now()+5600;
+    }
+    function clearStageEvent() {
+        eventExpires=0;
+        $('eventDialogue').classList.add('hidden');
+    }
+    function setDialogueMode(next) {
+        dialogueMode=next==='hardcore'?'hardcore':'normal';
+        try {localStorage.setItem(dialogueKey,dialogueMode);} catch (_) {}
+        $('normalMode').setAttribute('aria-pressed',String(dialogueMode==='normal'));
+        $('hardcoreMode').setAttribute('aria-pressed',String(dialogueMode==='hardcore'));
+        if(!$('dialogueScreen').classList.contains('hidden')) showStageIntro();
+        if(['levelComplete','victory'].includes(engine.state)) {
+            $('resultDescription').textContent=currentDialogue()?.clear||'감사합니다. 수고하셨습니다♡';
+        }
+    }
     let progress = {best:0,unlocked:0};
     try {
         const saved = JSON.parse(localStorage.getItem(storageKey) || 'null');
         if (saved && Number.isFinite(saved.best) && Number.isInteger(saved.unlocked)) {
             progress = { best:Math.max(0,saved.best), unlocked:Math.max(0,Math.min(total-1,saved.unlocked)) };
+        } else {
+            // Old eight-venue progress maps to the first tier of each venue.
+            const previous=JSON.parse(localStorage.getItem('gaia-heart-breaker-arcade-v1')||'null');
+            if(previous && Number.isInteger(previous.unlocked))
+                progress={best:Math.max(0,previous.best||0),unlocked:Math.min(total-1,previous.unlocked*5)};
         }
     } catch (_) { /* Private/offline browsers may disable localStorage. */ }
     function save() {
@@ -42,13 +100,17 @@
     }
 
     const asset = window.GaiaAssetUrl || (url=>url);
-    const faces = {
-        idle:asset('assets/characters/hero-idle.png'),
-        hit:asset('assets/characters/hero-hit.png'),
-        win:asset('assets/characters/hero-win.png'),
-        shy:asset('assets/characters/hero-shy.png')
+    const portraitBase='assets/characters/cutouts/03_portraits/';
+    const faceSets={
+        brown:{idle:'P02_brown_red_01.png',hit:'P02_brown_red_02.png',
+            win:'P02_brown_red_03.png',shy:'P02_brown_red_04.png'},
+        choseon:{idle:'P01_choseon_pink_01.png',hit:'P01_choseon_pink_02.png',
+            win:'P01_choseon_pink_03.png',shy:'P01_choseon_pink_04.png'}
     };
-    Object.values(faces).forEach(url => { const img = new Image(); img.src = url; });
+    for(const group of Object.values(faceSets)) for(const key of Object.keys(group))
+        group[key]=asset(portraitBase+group[key]);
+    let faces=faceSets.brown;
+    Object.values(faceSets).flatMap(Object.values).forEach(url => { const img = new Image(); img.src = url; });
     let reactionHold = 0, faceReset = 0, oldState = 'menu', lastDom = 0;
     const quips = ['아얏… 감사합니다♡','으윽… 감사합니다♡','아앗! 감사합니다♡','깜짝 놀랐습니다…♡','아휴… 수고하셨습니다♡','아앗… 정말 감사합니다♡'];
     function react(sentence, mode = 'hit', hold = 1000, force = false) {
@@ -76,29 +138,59 @@
             if (accepted) window.GaiaSound?.voice(['surprise','effort','yelp','whimper'][engine.combo % 4]);
         }
     };
+    engine.onStageEvent=(event)=>{
+        const scene=engine.levelsConfig.levels[engine.currentLevel]?.sceneKey;
+        const entry=currentDialogue();
+        if(!scene||!entry) return;
+        if(scene==='POLICE_ENDING' && event.type==='heart') {
+            if(event.target?.count===2) showStageEvent(entry.trigger);
+            if(event.target?.count===3) showStageEvent(entry.extras?.[0]);
+            return;
+        }
+        const matching=event.type===triggerByScene[scene] ||
+            (scene==='POLICE_DUAL' && event.type==='soccer');
+        if(stageDialogueShown||!matching) return;
+        const finishEvents=new Set(['PARK_JELLY','PARK_DEFENSE','STUDIO_DOUBLE',
+            'STUDIO_NG','STUDIO_FINAL','CASINO_FINAL','FARM_PIN2','POLICE_PRACTICAL']);
+        if(finishEvents.has(scene) && engine.targets.some(t=>t.count<t.required)) return;
+        if(scene==='PARK_FINAL' && event.target?.count<2) return;
+        if(scene==='POLICE_DUAL' && engine.targets.some(t=>t.count<t.required)) return;
+        stageDialogueShown=true;
+        showStageEvent(entry.trigger);
+    };
 
     function setStageVisuals() {
         const index = engine.currentLevel;
-        $('locationName').textContent = locations[index] || `스테이지 ${index+1}`;
-        $('sceneBackdrop').style.backgroundImage = `url('${asset(`assets/backgrounds/stage${index+1}.png`)}')`;
+        const level=engine.levelsConfig.levels[index];
+        const venue=level?.chapter??index;
+        faces=faceSets[level?.character]||faceSets.brown;
+        $('heroImage').src=faces.idle;
+        $('heroImage').dataset.mode='idle';
+        $('locationName').textContent = `${locations[venue] || '가이아 시티'} · ${level?.name || ''}`;
+        $('sceneBackdrop').style.backgroundImage = `url('${asset(`assets/backgrounds/stage${venue+1}.png`)}')`;
     }
     function show(id) { $(id).classList.remove('hidden'); }
     function hide(id) { $(id).classList.add('hidden'); }
     function mainMenu() {
+        goalShowcase=false;
         window.GaiaSound?.stop();
         engine.resetGame();
         engine.loadLevel(0);
         engine.state = 'menu';
+        clearStageEvent();
         oldState = 'menu';
         setStageVisuals();
-        hide('pauseScreen'); hide('messageScreen'); show('menuScreen');
+        hide('pauseScreen'); hide('messageScreen');hide('dialogueScreen');hide('settingsScreen');show('menuScreen');
         $('continueButton').hidden = !(progress.unlocked > 0);
         $('reaction').textContent = '오늘은 살살 부탁드려요…♡';
         $('heroImage').src = faces.idle;
         $('heroImage').dataset.mode = 'idle';
     }
-    function begin(stage=0) {
+    function begin(stage=0,showcase=false) {
+        goalShowcase=showcase;
         engine.startGame();
+        stageDialogueShown=false;
+        clearStageEvent();
         pocketStock.heart=3; pocketStock.ice=3; pocketStock.bolt=3;
         if (stage > 0) engine.loadLevel(stage);
         engine.state = 'playing';
@@ -106,22 +198,26 @@
         engine.usingKeyboard = false;
         oldState = 'playing';
         setStageVisuals();
-        hide('menuScreen'); hide('messageScreen'); hide('pauseScreen');
+        hide('menuScreen'); hide('messageScreen'); hide('pauseScreen');hide('settingsScreen');
         react(stage ? '다시 찾아주셔서 감사합니다♡' : '오늘도 잘 부탁드립니다♡','idle',1000,true);
         window.GaiaSound?.start(engine.currentLevel);
         window.GaiaSound?.powerUp();
+        showStageIntro();
     }
     function showResult(type) {
         const won=type==='victory',clear=type==='levelComplete';
         if (engine.score>progress.best) progress.best=engine.score;
-        if (clear) progress.unlocked=Math.max(progress.unlocked, Math.min(total-1,engine.currentLevel+1));
+        if (clear && !goalShowcase) progress.unlocked=Math.max(progress.unlocked, Math.min(total-1,engine.currentLevel+1));
         save();
         const title=won?'ALL CLEAR!':clear?'STAGE CLEAR!':'GAME OVER';
         $('resultIcon').textContent=won?'♛':clear?'♥':'♡';
         $('resultTitle').textContent=title;
-        $('resultDescription').textContent=won?'모든 장소를 돌파하셨습니다!':clear?'다음 장소가 열렸습니다.':'다시 도전하시면 더 잘하실 거예요.';
+        const lines=currentDialogue();
+        const conclusion=lines?.clear||'감사합니다. 수고하셨습니다♡';
+        $('resultDescription').textContent=won&&lines?.extras?.length?
+            `${lines.extras[0]}\n\n${conclusion}`:(clear?conclusion:won?conclusion:'다시 도전하시면 더 잘하실 거예요.');
         $('resultScore').textContent=engine.score.toLocaleString()+' PT';
-        $('resultButton').textContent=clear?'다음 스테이지 ▶':'다시 도전 ▶';
+        $('resultButton').textContent=goalShowcase?'시범판 종료 · 메인으로':clear?'다음 스테이지 ▶':'다시 도전 ▶';
         hide('pauseScreen');show('messageScreen');
         react(won?'정말 감사합니다. 수고하셨습니다♡':clear?'감사합니다! 수고하셨습니다♡':'수고하셨습니다. 감사합니다♡',clear||won?'win':'hit',3000,true);
         try {
@@ -152,16 +248,37 @@
     }
 
     $('startButton').addEventListener('click',()=>begin(0));
+    $('goalDemoButton').addEventListener('click',()=>{
+        const goalIndex=engine.levelsConfig.levels.findIndex(level=>level.sceneKey==='PARK_GOAL1');
+        if(goalIndex>=0)begin(goalIndex,true);
+    });
     $('continueButton').addEventListener('click',()=>begin(progress.unlocked));
     $('resultButton').addEventListener('click',()=>{
+        if(goalShowcase){mainMenu();return;}
         if (engine.state==='levelComplete') {
             engine.lives=Math.min(5,engine.lives+1); // Modest reward for clearing a floor.
             engine.nextLevel();
+            stageDialogueShown=false;
+            clearStageEvent();
             oldState='playing';setStageVisuals();hide('messageScreen');
             react('이번에도 잘 부탁드립니다♡','idle',900,true);
             try { window.GaiaSound?.setStage(engine.currentLevel); } catch (_) { /* optional audio */ }
+            showStageIntro();
         } else begin(0);
     });
+    $('dialogueStart').addEventListener('click',()=>hide('dialogueScreen'));
+    $('settingsButton').addEventListener('click',()=>{
+        settingsWasPlaying=engine.state==='playing';
+        if(settingsWasPlaying) pause();
+        show('settingsScreen');
+    });
+    $('settingsClose').addEventListener('click',()=>{
+        hide('settingsScreen');
+        if(settingsWasPlaying) resume();
+        settingsWasPlaying=false;
+    });
+    $('normalMode').addEventListener('click',()=>setDialogueMode('normal'));
+    $('hardcoreMode').addEventListener('click',()=>setDialogueMode('hardcore'));
     $('resultHome').addEventListener('click',mainMenu);
     $('pauseHome').addEventListener('click',mainMenu);
     $('resumeButton').addEventListener('click',resume);
@@ -191,6 +308,9 @@
     });
 
     function updateUi(now) {
+        if(eventExpires>0 && now>eventExpires) {
+            eventExpires=0;$('eventDialogue').classList.add('hidden');
+        }
         if (oldState!==engine.state) {
             if (['levelComplete','gameOver','victory'].includes(engine.state)) showResult(engine.state);
             oldState=engine.state;
@@ -207,13 +327,14 @@
         $('scoreNumber').textContent=engine.score.toLocaleString();
         $('lifeNumber').textContent='♥ '.repeat(engine.lives).trim() || '♡';
         $('mobileLives').textContent='♥ '.repeat(engine.lives).trim() || '♡';
-        $('mobileStage').textContent=`STAGE ${String(engine.currentLevel+1).padStart(2,'0')}`;
+        $('mobileStage').textContent=`${String(engine.currentLevel+1).padStart(2,'0')}/${total} · ${engine.levelsConfig.levels[engine.currentLevel]?.name||''}`;
         $('mobileScore').textContent=`SCORE ${engine.score.toLocaleString()}`;
         for (const name of ['heart','ice','bolt']) {
             $(name+'Count').textContent='×'+pocketStock[name];
             $(name+'Pocket').disabled=engine.state!=='playing'||pocketStock[name]<=0;
         }
         $('comboText').textContent=engine.combo>=3?`${engine.combo} COMBO!`:'♡ '+(engine.bricks.filter(b=>!b.indestructible).length)+' BLOCKS';
+        $('goalStatus').textContent=engine.stageGoalText();
         $('bestScore').textContent='BEST '+Math.max(progress.best,engine.score).toLocaleString();
         $('launchHint').classList.toggle('show',engine.state==='playing'&&engine.ballAttached);
         const flags=[];
@@ -232,5 +353,6 @@
     engine.render=()=>{renderer.render();updateUi(performance.now());};
     engine.start();
     setStageVisuals();
+    setDialogueMode(dialogueMode);
     $('continueButton').hidden=!(progress.unlocked>0);
 })();

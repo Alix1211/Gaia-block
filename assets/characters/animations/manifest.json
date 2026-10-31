@@ -1,0 +1,529 @@
+{
+  "version": 1,
+  "generatedBy": "tools/build-character-animations.mjs",
+  "transparent": true,
+  "notes": [
+    "frame_00 is deepest squat and frame_03 is fully standing.",
+    "Squat and squat-jump are different animation timelines; jump has extra vertical lift.",
+    "Goal rocking has two original rear-view poses. Look-back is a separate reaction.",
+    "All frames in a row share a fixed canvas and baseline; images are source-preserving."
+  ],
+  "characters": {
+    "brown": {
+      "front": {
+        "source": "assets/characters/source_sheets/06-1000109520.png",
+        "canvas": {
+          "width": 448,
+          "height": 768
+        },
+        "pivot": {
+          "x": 224,
+          "y": 751
+        },
+        "scale": 1.09431,
+        "poses": [
+          {
+            "file": "assets/characters/animations/brown/front/frame_00.png",
+            "x": 71,
+            "y": 242,
+            "width": 305,
+            "height": 509,
+            "removedIslands": 0
+          },
+          {
+            "file": "assets/characters/animations/brown/front/frame_01.png",
+            "x": 88,
+            "y": 150,
+            "width": 271,
+            "height": 601,
+            "removedIslands": 0
+          },
+          {
+            "file": "assets/characters/animations/brown/front/frame_02.png",
+            "x": 96,
+            "y": 70,
+            "width": 255,
+            "height": 681,
+            "removedIslands": 1
+          },
+          {
+            "file": "assets/characters/animations/brown/front/frame_03.png",
+            "x": 80,
+            "y": 20,
+            "width": 288,
+            "height": 731,
+            "removedIslands": 0
+          }
+        ],
+        "animations": {
+          "squat": {
+            "frames": [
+              3,
+              2,
+              1,
+              0,
+              1,
+              2
+            ],
+            "delayCs": [
+              12,
+              12,
+              12,
+              19,
+              12,
+              12
+            ],
+            "gif": "assets/characters/animations/brown/front/squat.gif",
+            "atlas": "assets/characters/animations/brown/front/squat-atlas.png"
+          },
+          "squatJump": {
+            "frames": [
+              0,
+              1,
+              2,
+              3,
+              3,
+              2,
+              1,
+              0
+            ],
+            "delayCs": [
+              10,
+              6,
+              6,
+              6,
+              10,
+              6,
+              6,
+              6
+            ],
+            "liftPx": [
+              0,
+              4,
+              17,
+              37
+            ],
+            "gif": "assets/characters/animations/brown/front/squat-jump.gif",
+            "atlas": "assets/characters/animations/brown/front/jump/squat-jump-atlas.png"
+          }
+        }
+      },
+      "back": {
+        "source": "assets/characters/source_sheets/08-1000109517.png",
+        "canvas": {
+          "width": 448,
+          "height": 768
+        },
+        "pivot": {
+          "x": 224,
+          "y": 751
+        },
+        "scale": 1.09104,
+        "poses": [
+          {
+            "file": "assets/characters/animations/brown/back/frame_00.png",
+            "x": 91,
+            "y": 253,
+            "width": 266,
+            "height": 498,
+            "removedIslands": 0
+          },
+          {
+            "file": "assets/characters/animations/brown/back/frame_01.png",
+            "x": 92,
+            "y": 214,
+            "width": 264,
+            "height": 537,
+            "removedIslands": 0
+          },
+          {
+            "file": "assets/characters/animations/brown/back/frame_02.png",
+            "x": 91,
+            "y": 137,
+            "width": 266,
+            "height": 614,
+            "removedIslands": 0
+          },
+          {
+            "file": "assets/characters/animations/brown/back/frame_03.png",
+            "x": 91,
+            "y": 20,
+            "width": 266,
+            "height": 731,
+            "removedIslands": 0
+          }
+        ],
+        "animations": {
+          "squat": {
+            "frames": [
+              3,
+              2,
+              1,
+              0,
+              1,
+              2
+            ],
+            "delayCs": [
+              12,
+              12,
+              12,
+              19,
+              12,
+              12
+            ],
+            "gif": "assets/characters/animations/brown/back/squat.gif",
+            "atlas": "assets/characters/animations/brown/back/squat-atlas.png"
+          },
+          "squatJump": {
+            "frames": [
+              0,
+              1,
+              2,
+              3,
+              3,
+              2,
+              1,
+              0
+            ],
+            "delayCs": [
+              10,
+              6,
+              6,
+              6,
+              10,
+              6,
+              6,
+              6
+            ],
+            "liftPx": [
+              0,
+              4,
+              17,
+              37
+            ],
+            "gif": "assets/characters/animations/brown/back/squat-jump.gif",
+            "atlas": "assets/characters/animations/brown/back/jump/squat-jump-atlas.png"
+          }
+        }
+      },
+      "goal": {
+        "sources": [
+          "assets/characters/source_sheets/01-1000109532.png",
+          "assets/characters/source_sheets/02-1000109528.png",
+          "assets/characters/source_sheets/03-1000109527.png"
+        ],
+        "canvas": {
+          "width": 832,
+          "height": 928
+        },
+        "pivot": {
+          "x": 416,
+          "y": 900
+        },
+        "scale": 0.60465,
+        "poses": [
+          {
+            "file": "assets/characters/animations/brown/goal/frame_00.png",
+            "x": 50,
+            "y": 42,
+            "width": 732,
+            "height": 858,
+            "removedIslands": 0
+          },
+          {
+            "file": "assets/characters/animations/brown/goal/frame_01.png",
+            "x": 33,
+            "y": 55,
+            "width": 765,
+            "height": 845,
+            "removedIslands": 0
+          },
+          {
+            "file": "assets/characters/animations/brown/goal/frame_02.png",
+            "x": 39,
+            "y": 131,
+            "width": 753,
+            "height": 769,
+            "removedIslands": 0
+          }
+        ],
+        "animations": {
+          "goalRock": {
+            "frames": [
+              0,
+              1
+            ],
+            "delayCs": [
+              24,
+              24
+            ],
+            "gif": "assets/characters/animations/brown/goal/goal-rock.gif",
+            "atlas": "assets/characters/animations/brown/goal/goal-rock-atlas.png"
+          },
+          "lookBack": {
+            "file": "assets/characters/animations/brown/goal/look-back.png",
+            "nonLooping": true
+          }
+        }
+      }
+    },
+    "choseon": {
+      "front": {
+        "source": "assets/characters/source_sheets/07-1000109519.png",
+        "canvas": {
+          "width": 448,
+          "height": 768
+        },
+        "pivot": {
+          "x": 224,
+          "y": 751
+        },
+        "scale": 1.03688,
+        "poses": [
+          {
+            "file": "assets/characters/animations/choseon/front/frame_00.png",
+            "x": 78,
+            "y": 271,
+            "width": 292,
+            "height": 480,
+            "removedIslands": 2
+          },
+          {
+            "file": "assets/characters/animations/choseon/front/frame_01.png",
+            "x": 84,
+            "y": 195,
+            "width": 280,
+            "height": 556,
+            "removedIslands": 4
+          },
+          {
+            "file": "assets/characters/animations/choseon/front/frame_02.png",
+            "x": 99,
+            "y": 76,
+            "width": 250,
+            "height": 675,
+            "removedIslands": 1
+          },
+          {
+            "file": "assets/characters/animations/choseon/front/frame_03.png",
+            "x": 97,
+            "y": 20,
+            "width": 254,
+            "height": 731,
+            "removedIslands": 4
+          }
+        ],
+        "animations": {
+          "squat": {
+            "frames": [
+              3,
+              2,
+              1,
+              0,
+              1,
+              2
+            ],
+            "delayCs": [
+              12,
+              12,
+              12,
+              19,
+              12,
+              12
+            ],
+            "gif": "assets/characters/animations/choseon/front/squat.gif",
+            "atlas": "assets/characters/animations/choseon/front/squat-atlas.png"
+          },
+          "squatJump": {
+            "frames": [
+              0,
+              1,
+              2,
+              3,
+              3,
+              2,
+              1,
+              0
+            ],
+            "delayCs": [
+              10,
+              6,
+              6,
+              6,
+              10,
+              6,
+              6,
+              6
+            ],
+            "liftPx": [
+              0,
+              4,
+              17,
+              37
+            ],
+            "gif": "assets/characters/animations/choseon/front/squat-jump.gif",
+            "atlas": "assets/characters/animations/choseon/front/jump/squat-jump-atlas.png"
+          }
+        }
+      },
+      "back": {
+        "source": "assets/characters/source_sheets/09-1000109516.png",
+        "canvas": {
+          "width": 448,
+          "height": 768
+        },
+        "pivot": {
+          "x": 224,
+          "y": 751
+        },
+        "scale": 0.49226,
+        "poses": [
+          {
+            "file": "assets/characters/animations/choseon/back/frame_00.png",
+            "x": 84,
+            "y": 251,
+            "width": 280,
+            "height": 500,
+            "removedIslands": 0
+          },
+          {
+            "file": "assets/characters/animations/choseon/back/frame_01.png",
+            "x": 95,
+            "y": 211,
+            "width": 257,
+            "height": 540,
+            "removedIslands": 1
+          },
+          {
+            "file": "assets/characters/animations/choseon/back/frame_02.png",
+            "x": 95,
+            "y": 136,
+            "width": 257,
+            "height": 615,
+            "removedIslands": 0
+          },
+          {
+            "file": "assets/characters/animations/choseon/back/frame_03.png",
+            "x": 95,
+            "y": 20,
+            "width": 257,
+            "height": 731,
+            "removedIslands": 0
+          }
+        ],
+        "animations": {
+          "squat": {
+            "frames": [
+              3,
+              2,
+              1,
+              0,
+              1,
+              2
+            ],
+            "delayCs": [
+              12,
+              12,
+              12,
+              19,
+              12,
+              12
+            ],
+            "gif": "assets/characters/animations/choseon/back/squat.gif",
+            "atlas": "assets/characters/animations/choseon/back/squat-atlas.png"
+          },
+          "squatJump": {
+            "frames": [
+              0,
+              1,
+              2,
+              3,
+              3,
+              2,
+              1,
+              0
+            ],
+            "delayCs": [
+              10,
+              6,
+              6,
+              6,
+              10,
+              6,
+              6,
+              6
+            ],
+            "liftPx": [
+              0,
+              4,
+              17,
+              37
+            ],
+            "gif": "assets/characters/animations/choseon/back/squat-jump.gif",
+            "atlas": "assets/characters/animations/choseon/back/jump/squat-jump-atlas.png"
+          }
+        }
+      },
+      "goal": {
+        "sources": [
+          "assets/characters/source_sheets/01-1000109532.png",
+          "assets/characters/source_sheets/02-1000109528.png",
+          "assets/characters/source_sheets/03-1000109527.png"
+        ],
+        "canvas": {
+          "width": 832,
+          "height": 928
+        },
+        "pivot": {
+          "x": 416,
+          "y": 900
+        },
+        "scale": 0.59377,
+        "poses": [
+          {
+            "file": "assets/characters/animations/choseon/goal/frame_00.png",
+            "x": 71,
+            "y": 42,
+            "width": 690,
+            "height": 858,
+            "removedIslands": 0
+          },
+          {
+            "file": "assets/characters/animations/choseon/goal/frame_01.png",
+            "x": 57,
+            "y": 48,
+            "width": 718,
+            "height": 852,
+            "removedIslands": 0
+          },
+          {
+            "file": "assets/characters/animations/choseon/goal/frame_02.png",
+            "x": 56,
+            "y": 108,
+            "width": 720,
+            "height": 792,
+            "removedIslands": 1
+          }
+        ],
+        "animations": {
+          "goalRock": {
+            "frames": [
+              0,
+              1
+            ],
+            "delayCs": [
+              24,
+              24
+            ],
+            "gif": "assets/characters/animations/choseon/goal/goal-rock.gif",
+            "atlas": "assets/characters/animations/choseon/goal/goal-rock-atlas.png"
+          },
+          "lookBack": {
+            "file": "assets/characters/animations/choseon/goal/look-back.png",
+            "nonLooping": true
+          }
+        }
+      }
+    }
+  }
+}
