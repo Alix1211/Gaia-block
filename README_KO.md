@@ -12,7 +12,7 @@
 
 PC에서는 마우스 이동, 방향키 또는 A/D 이동, 스페이스 발사, P/Esc 일시정지를 지원합니다.
 
-단일 파일 오프라인 판이 필요하면 `node tools/build-standalone.mjs`를 실행하세요. 저장소 상위 폴더에 `GAIA_Heart_Breaker_v0.13.1_Prototype_Tour_Standalone.html`이 생성되며, 새 정장/속옷/애니메이션 이미지와 오디오까지 파일 하나에 묶습니다. **이전 v0.13.0 파일에는 1→2 진행 문제가 남아 있으니 새 파일을 열어야 합니다.**
+단일 파일 오프라인 판이 필요하면 `node tools/build-standalone.mjs`를 실행하세요. 저장소 상위 폴더에 `GAIA_Heart_Breaker_v0.14.0_Elastic_Pose_Tour_Standalone.html`이 생성되며, 새 정장/속옷/애니메이션 이미지와 오디오까지 파일 하나에 묶습니다. **이전 v0.13.0 파일에는 1→2 진행 문제가 남아 있으니 새 파일을 열어야 합니다.**
 
 ## 추가 시험: 거대한 숨은 캐릭터 6종
 

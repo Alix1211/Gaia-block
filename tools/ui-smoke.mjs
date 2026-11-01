@@ -159,7 +159,7 @@ element('resultButton').click();
 assert.equal(e.currentLevel,23,'stage 22 must advance directly to pose test 24');
 assert.equal(e.elasticCharacter?.who,'choseon');
 assert.equal(e.state,'dialogue');
-element('pauseHome').click(); // no-op in dialogue, return via menu on next pause.
+element('pauseHome').click(); // The home action returns to the main menu even from a dialogue.
 console.log(JSON.stringify({result:'PASS',singleShowcase:true,prototypeTour:'06→11→21→menu',
   startSkips01:true,touchLaunch:true,pauseResume:true,stageClearWithoutRender:true,
   gameOverRetry:true,renderErrorRecovery:true,progressPreserved:true}));
