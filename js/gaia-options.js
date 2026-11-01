@@ -178,6 +178,12 @@
         options.haptics=haptics.enabled;persist();
     });
     $('vibrationTest')?.addEventListener('click',()=>{
+        // Never bypass the setting: previously the test vibrated even when
+        // gameplay haptics were disabled, producing a false-positive test.
+        if(!haptics.enabled){
+            $('vibrationStatus').textContent='진동이 꺼져 있습니다. 진동 사용을 켜 주세요.';
+            return;
+        }
         const ok=haptics.pulse('explosion',true);
         $('vibrationStatus').textContent=ok?'진동 신호 전송 · 실제 진동은 기기에 따라 다릅니다.':
             '이 브라우저에서 진동 신호가 거부되었습니다. Android Chrome을 확인해 주세요.';
