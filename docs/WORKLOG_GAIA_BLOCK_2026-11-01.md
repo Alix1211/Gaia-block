@@ -3,6 +3,16 @@
 > 마지막 업데이트: 2026-11-01 (KST) / 이 문서는 작업 전·후에 누적 갱신한다.
 > GitHub 반영과 로컬 소스 작업은 구분해 기록한다. 완료 판정은 실제 결과를 확인한 항목에만 붙인다.
 
+## 2026-11-01 실제 Android APK 컴파일/배포 완료
+
+- `android/` 네이티브 WebView 앱 및 `tools/prepare-android-assets.mjs`를 구현하여 현재 40판 HTML, 원본 이미지, BGM, SFX를 **앱 안에 오프라인 패키징**.
+- `VIBRATE` 권한 및 `VibrationEffect.createWaveform` 직접 호출 구현. JS `GaiaNativeVibration` 브리지로 패들·신체·폭발이 각각 다른 진동 패턴을 요청. 테스트 버튼은 실제 진동장치가 있는지 판별. **실제 iPlay 70 mini Pro 기기 확인은 아직 진행하지 않음**.
+- 시스템 폴더 선택기 `ACTION_OPEN_DOCUMENT_TREE`, 읽기 URI 권한 보존, JS/CSS 랜덤 배경 슬라이드쇼 및 앱 재시작 후 자동 복원. 외부 업로드/인터넷 권한 없음.
+- Android GitHub Actions #1은 구형 SDK tools 패키지 오류, #2는 Activity `setImmersive` 메서드명 충돌로 실패. 수정 후 **#3 GitHub Actions 빌드 `41261260712` 성공**. Debug 서명 APK 54,725,435바이트 작성.
+- 배포 GitHub Release: `v0.16.1-native`, APK 이름 `GAIA_Heart_Breaker_v0.16.1_Native_Haptics.apk`. 직접 URL: https://github.com/Alix1211/Gaia-block/releases/download/v0.16.1-native/GAIA_Heart_Breaker_v0.16.1_Native_Haptics.apk
+- 설치된 APK의 WebView 저장은 이전 크롬/HTML 브라우저 저장과 별개. 개발용 서명키는 CI 캐시에 보존 중이지만 장기 지속을 보장하는 **정식 고정 키**는 아직 없음. 추후 업데이트 배포에는 릴리즈 서명 전략 검토.
+- **검증 범위**: Gradle/Java/Android 리소스 컴파일, 원본 이미지 복사, APK 빌드·업로드 성공. 기기 설치 실행/진동 강도, 폴더 접근 실기 검사, 전체화면/비율 실기 검사는 미실시.
+
 ## 2026-11-01 v0.16 — 단순 메뉴 + 사운드/진동/배경 슬라이드쇼
 
 - 사용자가 기존 판 제작의 완성도를 인정하면서 메인 메뉴에는 **스토리 모드·이어하기 2개만** 남기도록 지시. 나머지 3종/6종 실험 버튼은 DOM에 보존하지만 기본 화면에서 숨김. 이어하기는 저장 전에도 보이되 비활성.
