@@ -126,8 +126,9 @@ body { background:#f4b8d9; color:#fff; font-family:'Malgun Gothic','Apple SD Got
    square playfield, thigh-length character art on the right. */
 @media (orientation:landscape) and (min-aspect-ratio:1/1) {
   .app {
-    --land-rail:clamp(128px,15vw,210px);
-    --land-portrait:clamp(220px,28vw,510px);
+    --land-rail:clamp(104px,10vw,160px);
+    /* The square board gets landscape height first; portrait gets the rest. */
+    --land-portrait:clamp(200px,calc(100dvw - var(--land-rail) - 100dvh),550px);
     width:100dvw;
     height:100dvh;
     max-width:none;
