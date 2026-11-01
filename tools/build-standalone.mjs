@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const base=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
-const output=path.resolve(base,'..','GAIA_Heart_Breaker_v0.14.0_Elastic_Pose_Tour_Standalone.html');
+const output=path.resolve(base,'..','GAIA_Heart_Breaker_v0.16.0_Settings_Slideshow_Haptics_Offline.html');
 const images=[
     ...Array.from({length:8},(_,i)=>`assets/backgrounds/stage${i+1}.png`),
     ...['hero-idle','hero-hit','hero-win','hero-shy'].map(name=>`assets/characters/${name}.png`),
@@ -45,7 +45,7 @@ html=html.replace('<link rel="stylesheet" href="css/style.css">',`<style>\n${css
 html=html.replace('src="assets/characters/hero-idle.png"',`src="${map['assets/characters/hero-idle.png']}"`);
 const assetMapScript=`<script>\nwindow.GaiaAssetMap=${JSON.stringify(map)};\nwindow.GaiaAssetUrl=function(path){return window.GaiaAssetMap[path]||path;};\n</script>`;
 html=html.replace('  <script src="js/config-inline.js"></script>',`  ${assetMapScript}\n  <script src="js/config-inline.js"></script>`);
-const scripts=['config-inline','stages40','dialogues-data','gaia-sound','engine','sprite-atlas','block-sprites','renderer','elastic-hazards','main'];
+const scripts=['config-inline','stages40','dialogues-data','gaia-sound','engine','sprite-atlas','block-sprites','renderer','elastic-hazards','gaia-options','main'];
 for(const name of scripts){
     const target=`<script src="js/${name}.js"></script>`;
     if(!html.includes(target))throw new Error(`Missing entry: ${name}`);

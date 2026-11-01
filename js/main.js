@@ -243,8 +243,9 @@
         oldState = 'menu';
         setStageVisuals();
         hide('pauseScreen'); hide('messageScreen');hide('dialogueScreen');hide('settingsScreen');show('menuScreen');
-        $('continueButton').hidden = progress.unlocked===0;
-        $('continueButton').textContent = `${String(progress.unlocked+1).padStart(2,'0')}번부터 이어하기 ▶`;
+        $('continueButton').hidden = false;
+        $('continueButton').disabled = progress.unlocked===0;
+        $('continueButton').textContent = progress.unlocked>0 ? `이어하기 · ${String(progress.unlocked+1).padStart(2,'0')}번 ▶` : '이어하기 · 저장된 진행 없음';
         $('reaction').textContent = '오늘은 살살 부탁드려요…♡';
         $('heroImage').src = faces.idle;
         $('heroImage').dataset.mode = 'idle';
@@ -458,5 +459,6 @@
     engine.start();
     setStageVisuals();
     setDialogueMode(dialogueMode);
-    $('continueButton').hidden=progress.unlocked===0;
+    $('continueButton').hidden=false;
+    $('continueButton').disabled=progress.unlocked===0;
 })();

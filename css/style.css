@@ -263,3 +263,41 @@ body { background:#f4b8d9; color:#fff; font-family:'Malgun Gothic','Apple SD Got
   .app:has(#dialogueScreen:not(.hidden)){--land-portrait:clamp(170px,38vw,390px)}
   .dialogue-card {padding:9px;gap:4px}.dialogue-line {padding:4px 8px}
 }
+
+
+/* GAIA 0.16: minimal story menu, independent audio/haptics, private slideshow */
+.menu-card #startButton,.menu-card #elasticDemoButton,.menu-card .demo-picks {display:none!important;}
+.menu-card #continueButton[hidden] {display:block!important;}
+.menu-card #continueButton:disabled{opacity:.5;cursor:not-allowed;}
+.scene-backdrop{isolation:isolate;}
+.scene-backdrop .slide-layer{position:absolute;inset:0;background-position:center center;background-repeat:no-repeat;background-size:cover;opacity:0;transition:opacity .75s ease;will-change:opacity;}
+.scene-backdrop .slide-layer.slide-active{opacity:1;}
+.settings-card{width:min(94%,550px);max-height:92%;overflow-y:auto;overscroll-behavior:contain;gap:10px;text-align:left;}
+.settings-card .eyebrow,.settings-card h2{align-self:center;}
+.settings-section{width:100%;padding:10px 12px;border:1px solid #eebadd;border-radius:14px;background:#fffbffe6;color:#7a3f6e;display:flex;flex-direction:column;gap:7px;}
+.settings-section h3{color:#9b5085;font-size:15px;margin:0 0 3px;}
+.settings-label{display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:800;font-size:13px;color:#874273;}
+.settings-label output{font-variant-numeric:tabular-nums;color:#b54895;}
+.settings-section input[type=range]{width:100%;height:26px;accent-color:#ee68ad;cursor:pointer;touch-action:pan-x;}
+.settings-switch input[type=checkbox]{height:22px;width:22px;accent-color:#ee68ad;cursor:pointer;}
+.settings-section .ghost-button,.settings-section .choice-button{min-height:35px;padding:7px 10px;font-size:12px;}
+.settings-section .choice-button{width:auto;flex:1;min-width:0;}
+.settings-actions{display:flex;gap:7px;width:100%;}
+.settings-actions button{min-width:0;flex:1;white-space:normal;}
+.settings-hint{font-size:11px!important;line-height:1.4!important;color:#99738d!important;}
+.settings-card #settingsClose{flex-shrink:0;align-self:stretch;}
+@media (orientation:landscape) and (min-aspect-ratio:1/1){
+ .app{grid-template-columns:minmax(0,1fr) var(--land-rail);}
+ .topbar{grid-column:2;background:linear-gradient(270deg,rgba(85,37,102,.62),rgba(88,37,102,.22));}
+ .play-layout{grid-column:1;grid-template-columns:var(--land-portrait) minmax(0,1fr);}
+ .character-panel{grid-column:1;}
+ .board-shell{grid-column:2;justify-self:start;}
+ .goal-status{left:auto;right:7px;}
+ .pocketbar{left:auto;right:7px;}
+ .board-screen#dialogueScreen{left:var(--land-portrait);right:0;}
+}
+@media (orientation:landscape) and (max-height:480px){
+ .settings-card{max-height:calc(100dvh - 14px);padding:9px;gap:6px;}
+ .settings-section{padding:6px 9px;gap:4px;}
+ .settings-section h3{font-size:12px;}
+}

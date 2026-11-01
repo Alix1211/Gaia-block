@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div class="scene-backdrop" id="sceneBackdrop"></div>
+  <div class="scene-backdrop" id="sceneBackdrop"><div class="slide-layer" id="slideLayerA"></div><div class="slide-layer" id="slideLayerB"></div></div>
   <div class="app">
     <header class="topbar">
       <div class="brand"><span>GAIA CITY</span><strong>HEART BREAKER</strong></div>
@@ -44,14 +44,14 @@
               <div class="menu-divider">♥　♥　♥</div>
               <p>40개 장면 구성 완료 · 난도는 플레이하며 조정</p>
               <button id="fullTourButton" class="pink-button">40판 스토리 모드 <span>▶</span></button>
-              <button id="startButton" class="ghost-button">대표 기믹 3종 시험 ▶</button>
-              <div class="demo-picks" aria-label="대표 기믹 시범판">
+              <button id="startButton" class="ghost-button" hidden>대표 기믹 3종 시험 ▶</button>
+              <div class="demo-picks" aria-label="대표 기믹 시범판" hidden>
                 <button id="goalDemoButton" class="ghost-button">06 · 골대</button>
                 <button id="revealDemoButton" class="ghost-button">11 · 숨은 반사</button>
                 <button id="hopDemoButton" class="ghost-button">21 · 쪼그려 이동</button>
               </div>
-              <button id="elasticDemoButton" class="ghost-button">숨은 대형 캐릭터 · 6판 시험</button>
-              <button id="continueButton" class="ghost-button" hidden>진행 중인 40판 이어하기</button>
+              <button id="elasticDemoButton" class="ghost-button" hidden>숨은 대형 캐릭터 · 6판 시험</button>
+              <button id="continueButton" class="ghost-button">이어하기</button>
               <div class="menu-tip">손가락 / 마우스 이동 · 터치 발사 · P 일시정지</div>
             </div>
           </div>
@@ -83,11 +83,40 @@
           <div class="board-screen hidden" id="settingsScreen">
             <div class="menu-card settings-card">
               <span class="eyebrow">GAIA CITY · OPTIONS</span>
-              <h2>대사 모드</h2>
-              <p>게임 난도와 진행 기록은 그대로 유지됩니다.</p>
-              <button id="normalMode" class="choice-button" aria-pressed="true">NORMAL</button>
-              <button id="hardcoreMode" class="choice-button" aria-pressed="false">EX-HARDCORE</button>
-              <button id="settingsClose" class="ghost-button">돌아가기</button>
+              <h2>게임 설정</h2>
+              <div class="settings-section">
+                <label class="settings-label" for="musicSlider">♫ 배경음 <output id="musicValue">54%</output></label>
+                <input id="musicSlider" type="range" min="0" max="100" value="54" step="1">
+                <label class="settings-label" for="effectsSlider">♬ 효과음 <output id="effectsValue">100%</output></label>
+                <input id="effectsSlider" type="range" min="0" max="100" value="100" step="1">
+              </div>
+              <div class="settings-section">
+                <label class="settings-label settings-switch" for="vibrationToggle">⚡ 진동 사용 <input id="vibrationToggle" type="checkbox" checked></label>
+                <button id="vibrationTest" class="ghost-button" type="button">진동 시험 · 펑!</button>
+                <p id="vibrationStatus" class="settings-hint">패들 · 폭발 · 캐릭터 충돌 시 진동</p>
+              </div>
+              <div class="settings-section">
+                <h3>배경 이미지 슬라이드쇼</h3>
+                <div class="settings-actions">
+                  <button id="backgroundFolderButton" class="ghost-button" type="button">📁 배경 폴더 선택</button>
+                  <button id="backgroundFilesButton" class="ghost-button" type="button">▣ 사진 여러 장 선택</button>
+                </div>
+                <input id="backgroundFolderInput" type="file" accept="image/*" webkitdirectory directory multiple hidden>
+                <input id="backgroundFilesInput" type="file" accept="image/*" multiple hidden>
+                <label class="settings-label" for="slideSeconds">랜덤 전환 간격 <output id="slideSecondsValue">8초</output></label>
+                <input id="slideSeconds" type="range" min="4" max="20" value="8" step="1">
+                <button id="backgroundDefaultButton" class="ghost-button" type="button">기본 게임 배경으로</button>
+                <p id="backgroundStatus" class="settings-hint">기본 게임 배경 사용 중 · 이미지는 기기에만 있습니다.</p>
+                <p class="settings-hint">전체 화면에 빈틈 없이 채웁니다. 재실행 시 폴더 재선택이 필요할 수 있습니다.</p>
+              </div>
+              <div class="settings-section">
+                <h3>대사 모드</h3>
+                <div class="settings-actions">
+                  <button id="normalMode" class="choice-button" aria-pressed="true">NORMAL</button>
+                  <button id="hardcoreMode" class="choice-button" aria-pressed="false">EX-HARDCORE</button>
+                </div>
+              </div>
+              <button id="settingsClose" class="pink-button">돌아가기 ▶</button>
             </div>
           </div>
           <div class="launch-hint" id="launchHint">화면을 터치하면 공이 출발합니다　↑</div>
@@ -110,6 +139,7 @@
   <script src="js/block-sprites.js"></script>
   <script src="js/renderer.js"></script>
   <script src="js/elastic-hazards.js"></script>
+  <script src="js/gaia-options.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
