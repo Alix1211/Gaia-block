@@ -575,6 +575,7 @@ class GameEngine {
     }
 
     bounceOffBody(ball,art,zone) {
+        window.GaiaHaptics?.pulse('body');
         const speed=Math.max(4,Math.hypot(ball.dx,ball.dy));
         const offset=Math.max(-1,Math.min(1,(ball.x-(art.left+art.width/2))/(art.width*.32)));
         const angle={shoulder:.26,waist:.70,hip:.43,thigh:.14}[zone.name];
@@ -617,6 +618,7 @@ class GameEngine {
                 Math.abs(oldY-target.y)>=Math.abs(ball.y-target.y);
             if (!hit) continue;
             target.lastHit=this.elapsed;target.count++;target.triggered=this.elapsed;
+            if(target.goalArtwork)window.GaiaHaptics?.pulse('body');
             if(this.levelsConfig.levels[this.currentLevel]?.features?.alternate && target.kind==='soccer')
                 target.character=target.character==='brown'?'choseon':'brown';
             this.onStageEvent?.({type:target.kind,target});
@@ -884,6 +886,8 @@ class GameEngine {
             ball.dy = -speed * Math.cos(angle);
             ball.y = p.y - ball.radius;
 
+            // The paddle collision is confirmed here; no second position check.
+            window.GaiaHaptics?.pulse('paddle');
             if (this.magnetActive) {
                 // Catch the ball
                 this.ballAttached = true;
@@ -976,6 +980,7 @@ class GameEngine {
     }
 
     explodeBrick(brick, index, depth=0) {
+        window.GaiaHaptics?.pulse('explosion');
         this.screenShake = 8;
         this.flashAlpha = 0.3;
         if(this.stageStats) this.onStageEvent?.({type:'bomb',brick});

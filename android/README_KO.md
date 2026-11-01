@@ -21,3 +21,6 @@ GitHub Actions `Build Android APK` 워크플로가 코드 및 게임 에셋을 `
 - 대사 / BGM / 효과음 / 저장 진행 / 전체화면 버튼
 
 ※ 이 문서는 빌드 소스를 제공하며 APK 빌드 성공과 Android 실기 진동의 확인은 CI/실기 결과로 따로 기록합니다.
+
+## 0.16.2 진동 수정
+실제 패들 반사·신체 반사·골대 몸통 충돌·특수 의상 반사·폭탄 폭발의 **충돌 확정 위치**에서 JS가 즉시 `GaiaNativeVibration.vibrate`를 호출하도록 변경했습니다. 이전 버전처럼 충돌 직후 공의 위치를 다시 판정하는 조건을 두지 않습니다. 게임에서 직접 충돌 이벤트를 발생시켜 Android 브리지에 전달되는 진동 패턴을 검증하는 `node tools/test-game-haptics.cjs` 자동테스트를 GitHub Actions에 추가했습니다. 태블릿 실제 진동은 사용자가 APK 설치 후 검증해야 합니다.

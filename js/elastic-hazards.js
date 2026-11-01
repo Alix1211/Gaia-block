@@ -115,6 +115,7 @@
         ball.y+=ny*(ball.radius+3);
         ball.elasticContact=actor;
         actor.lastHit=this.elapsed;
+        window.GaiaHaptics?.pulse('body');
         actor.triggered=this.elapsed;
         actor.impactX=ball.x;
         actor.impactY=ball.y;

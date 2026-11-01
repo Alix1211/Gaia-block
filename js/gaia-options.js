@@ -40,62 +40,33 @@
     }
 
     const haptics={
-        enabled:options.haptics,lastAt:-1e6,
-        patterns:{paddle:[26],body:[55,24,75],explosion:[105,38,130,32,105]},
+        enabled:options.haptics,lastAt:{paddle:-1e6,body:-1e6,explosion:-1e6},
+        // Deliberately strong for tablets: native amplitude is 255 (maximum).
+        patterns:{paddle:[65],body:[90,35,105],explosion:[160,45,180,45,160]},
         pulse(kind,force=false){
             if(!this.enabled&&!force)return false;
             const pattern=this.patterns[kind]||this.patterns.body;
             const now=typeof performance!=='undefined'?performance.now():Date.now();
             const gap=kind==='explosion'?260:kind==='paddle'?75:125;
-            if(!force&&now-this.lastAt<gap)return false;
+            if(!force&&now-(this.lastAt[kind]??-1e6)<gap)return false;
             let ok=false;
             try{
                 // A future native Android APK can supply an actual bridge.
                 const native=window.GaiaNativeVibration;
                 if(native&&typeof native.vibrate==='function'){
-                    native.vibrate(JSON.stringify(pattern));ok=true;
+                    ok=native.vibrate(JSON.stringify(pattern))!==false;
                 }else if(typeof navigator!=='undefined'&&typeof navigator.vibrate==='function'){
                     ok=navigator.vibrate(pattern)!==false;
                 }
             }catch(_){ok=false;}
-            if(ok)this.lastAt=now;
+            if(ok)this.lastAt[kind]=now;
             return ok;
         }
     };
     window.GaiaHaptics=haptics;
-    const originalPaddle=GameEngine.prototype.checkPaddleCollision;
-    GameEngine.prototype.checkPaddleCollision=function(ball){
-        const wasDescending=ball.dy>0;
-        originalPaddle.call(this,ball);
-        if(wasDescending&&ball.dy<0&&this.paddle&&
-            Math.abs(ball.y-(this.paddle.y-ball.radius))<2)
-            haptics.pulse('paddle');
-    };
-    const originalExplosion=GameEngine.prototype.explodeBrick;
-    GameEngine.prototype.explodeBrick=function(...args){
-        haptics.pulse('explosion');
-        return originalExplosion.apply(this,args);
-    };
-    const originalBody=GameEngine.prototype.bounceOffBody;
-    GameEngine.prototype.bounceOffBody=function(...args){
-        haptics.pulse('body');return originalBody.apply(this,args);
-    };
-    const originalTarget=GameEngine.prototype.checkStageTargetCollisions;
-    GameEngine.prototype.checkStageTargetCollisions=function(ball,oldY){
-        const before=this.targets?.filter(t=>t.goalArtwork).map(t=>t.count)||[];
-        const result=originalTarget.call(this,ball,oldY);
-        if(this.targets?.filter(t=>t.goalArtwork).some((t,i)=>t.count>before[i]))haptics.pulse('body');
-        return result;
-    };
-    if(typeof GameEngine.prototype.checkElasticCharacter==='function'){
-        const originalElastic=GameEngine.prototype.checkElasticCharacter;
-        GameEngine.prototype.checkElasticCharacter=function(ball){
-            const last=this.elasticCharacter?.lastHit;
-            const result=originalElastic.call(this,ball);
-            if(this.elasticCharacter&&this.elasticCharacter.lastHit!==last)haptics.pulse('body');
-            return result;
-        };
-    }
+    // Engine and elastic-hazard collision code signal GaiaHaptics directly
+    // at the confirmed contact point. Do not wrap the physics methods here:
+    // a post-bounce geometry check previously suppressed real collisions.
 
     // User-selected image files are referenced by blob URLs, never uploaded.
     // A page reload needs folder selection again because local file access is permissioned.

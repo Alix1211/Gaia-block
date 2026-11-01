@@ -39,6 +39,8 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
+      - name: Test real collision-to-native vibration dispatch
+        run: node tools/test-game-haptics.cjs
       - name: Package original offline game into Android assets
         run: node tools/prepare-android-assets.mjs
       - name: Assemble installable debug APK
@@ -47,20 +49,20 @@ jobs:
       - name: Name APK
         run: |
           mkdir -p dist
-          cp android/app/build/outputs/apk/debug/app-debug.apk dist/GAIA_Heart_Breaker_v0.16.1_Native_Haptics.apk
+          cp android/app/build/outputs/apk/debug/app-debug.apk dist/GAIA_Heart_Breaker_v0.16.2_Native_Haptics.apk
       - name: Upload Android APK
         uses: actions/upload-artifact@v4
         with:
           name: gaia-heart-breaker-apk
-          path: dist/GAIA_Heart_Breaker_v0.16.1_Native_Haptics.apk
+          path: dist/GAIA_Heart_Breaker_v0.16.2_Native_Haptics.apk
           if-no-files-found: error
           retention-days: 30
       - name: Publish installable APK on GitHub Releases
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="v0.16.1-native"
+          TAG="v0.16.2-native"
           if ! gh release view "$TAG" >/dev/null 2>&1; then
-            gh release create "$TAG" --title "GAIA HEART BREAKER v0.16.1 Android APK" --notes "Offline APK. Android native vibration, local folder slideshow, 40-stage story mode. Debug-signed prototype for testing on a tablet."
+            gh release create "$TAG" --title "GAIA HEART BREAKER v0.16.2 Android APK" --notes "Offline APK. Android native vibration, local folder slideshow, 40-stage story mode. Debug-signed prototype for testing on a tablet."
           fi
-          gh release upload "$TAG" dist/GAIA_Heart_Breaker_v0.16.1_Native_Haptics.apk --clobber
+          gh release upload "$TAG" dist/GAIA_Heart_Breaker_v0.16.2_Native_Haptics.apk --clobber
