@@ -60,7 +60,7 @@ public final class MainActivity extends Activity {
         super.onCreate(state);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                              WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setImmersive(true);
+        applyImmersiveMode(true);
         webView = new WebView(this);
         webView.setBackgroundColor(Color.rgb(44, 21, 50));
         webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
@@ -122,7 +122,7 @@ public final class MainActivity extends Activity {
         super.onDestroy();
     }
 
-    private void setImmersive(boolean enable) {
+    private void applyImmersiveMode(boolean enable) {
         immersive = enable;
         View decor = getWindow().getDecorView();
         int flags = enable ? (
@@ -138,7 +138,7 @@ public final class MainActivity extends Activity {
     private final class UiBridge {
         @JavascriptInterface public void toggleFullscreen() {
             runOnUiThread(() -> {
-                setImmersive(!immersive);
+                applyImmersiveMode(!immersive);
                 if (webView != null) {
                     webView.evaluateJavascript(
                         "document.getElementById('fullscreenButton').textContent=" +

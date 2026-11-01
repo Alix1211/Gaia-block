@@ -17,7 +17,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
     steps:
       - name: Checkout game
         uses: actions/checkout@v4
@@ -55,3 +55,12 @@ jobs:
           path: dist/GAIA_Heart_Breaker_v0.16.1_Native_Haptics.apk
           if-no-files-found: error
           retention-days: 30
+      - name: Publish installable APK on GitHub Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v0.16.1-native"
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --title "GAIA HEART BREAKER v0.16.1 Android APK" --notes "Offline APK. Android native vibration, local folder slideshow, 40-stage story mode. Debug-signed prototype for testing on a tablet."
+          fi
+          gh release upload "$TAG" dist/GAIA_Heart_Breaker_v0.16.1_Native_Haptics.apk --clobber
