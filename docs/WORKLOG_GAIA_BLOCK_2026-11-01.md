@@ -1,3 +1,13 @@
+## 2026-11-01 — v0.16.3 기기 시험 성공/게임 진동 누락 수정 완료
+
+- 사용자 실기 피드백: **태블릿 설정의 진동 시험은 정상, 실제 게임 중에는 진동이 없음**.
+- 원인 1: 기존 `js/gaia-options.js`는 패들 원본 충돌 처리 이후 공 방향/위치를 **두 번째 조건으로 재검사**하여 진동을 트리거했음. 실제 충돌 확정 지점에서 네이티브 신호를 바로 보내도록 `js/engine.js`를 수정.
+- 원인 2: 설정 시험 버튼이 `haptics.pulse('explosion',true)`로 **진동 설정 OFF를 강제로 무시**하므로 '시험은 되는데 게임이 무진동'일 수 있었음. 진동 OFF일 때 시험도 차단하고 안내 문구를 표시하도록 개선.
+- 변경: 패들(자석 포함) 직접 65ms, 스쿼트/쪼그려 이동·골대·탄성 의상 충돌 90/35/105ms, 폭탄 폭발 160/45/180/45/160ms. 기존 APK `GaiaNativeVibration.vibrate(JSON.stringify(pattern))`가 Android `VibratorManager` / `VibrationEffect`를 호출함. **Android 원음/물리/세이브 수정 없음**. 진동 타입별 쿨다운 분리.
+- `tools/test-game-haptics.cjs` 자동검사는 **실제 GameEngine 물리 함수**를 호출해 각 충돌에서 Android 네이티브 브리지로 단 한 번 패턴이 넘어가는지 확인. GitHub Actions에서도 통과.
+- GitHub Actions 빌드 `41262200513` **성공**. v0.16.3 개발 서명 APK 54,725,407 bytes 릴리즈 업로드 완료: https://github.com/Alix1211/Gaia-block/releases/download/v0.16.3-native/GAIA_Heart_Breaker_v0.16.3_Native_Haptics.apk
+- 테스트 한계: 사용자의 **새 APK v0.16.3 태블릿 실기 진동 확인은 아직 전**. GitHub 빌드 성공·네이티브 호출 자동 테스트 완료와 구분할 것. 같은 개발 서명 및 버전 코드 3으로 기존 앱 위에 업데이트 시도 가능. 기존 HTML/Chrome과 APK 저장 공간은 별개.
+
 # GAIA CITY · HEART BREAKER — 작업 중단 대비 체크포인트
 
 > 마지막 업데이트: 2026-11-01 (KST) / 이 문서는 작업 전·후에 누적 갱신한다.
