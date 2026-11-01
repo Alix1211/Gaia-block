@@ -22,16 +22,16 @@
     // One fully art-directed prototype goal board. Animated rear-view character
     // and its moving, visible scoring target share the same pose clock.
     add('첫 골','PARK_GOAL1',8,68,.80,{soccer:[1]},{wood:25,goalCharacter:true});
-    add('젤리 프리킥','PARK_JELLY',8,72,.85,{soccer:[2]},{jelly:40});
-    add('움직이는 골대','PARK_MOVING',8,76,.85,{soccer:[1]},{jelly:22,goalMove:28});
-    add('수비벽 돌파','PARK_DEFENSE',9,82,.85,{soccer:[2]},{metal:12,movers:2,goalMove:34});
-    add('하트컵 결승','PARK_FINAL',9,86,.90,{soccer:[3]},{jelly:27,goalMove:35,alternate:true});
+    add('젤리 프리킥','PARK_JELLY',8,72,.85,{soccer:[2]},{jelly:40,goalCharacter:true});
+    add('움직이는 골대','PARK_MOVING',8,76,.85,{soccer:[1]},{jelly:22,goalMove:28,goalCharacter:true});
+    add('수비벽 돌파','PARK_DEFENSE',9,82,.85,{soccer:[2]},{metal:12,movers:2,goalMove:34,goalCharacter:true});
+    add('하트컵 결승','PARK_FINAL',9,86,.90,{soccer:[2,1]},{jelly:27,goalMove:35,goalCharacter:true});
 
     add('누가 계세요?','ROOM_REVEAL',8,68,.80,{reflect:[1]},{wood:20,reveal:.35});
     add('두 번째 노크','ROOM_TWICE',8,72,.85,{reflect:[2]},{wood:22,jelly:25,reveal:.38});
     add('두 분 예약','ROOM_DUO',9,78,.85,{reflect:[1,1]},{jelly:25,reveal:.3});
     add('가로막힌 비밀','ROOM_GUARD',9,82,.85,{reflect:[3]},{movers:1,reveal:.4});
-    add('비밀 공개 쇼','ROOM_FINAL',9,86,.90,{reflect:[2,2]},{neon:20,lightning:3,recolor:6,reveal:.4});
+    add('비밀 공개 쇼','ROOM_FINAL',9,86,.90,{reflect:[4,4]},{neon:20,lightning:3,recolor:6,reveal:.4});
 
     add('첫 테이크','STUDIO_TAKE1',8,70,.75,{basket:[1]},{wood:25});
     add('이동 카메라','STUDIO_MOVE',8,74,.80,{basket:[1]},{basketMove:40});
@@ -106,6 +106,61 @@
             'JJ.JJJJ.JJ','nNnNSSnNnN','J.SSSSSS.J','SSMMSSMMSS','SSWWSSWWSS'
         ]
     };
+
+    // Distinct, scene-authored silhouettes rather than random scatter.
+    // Each preset chooses where *negative space* goes: visible gates, arcade
+    // arches, diagonal lanes, pin corridors and neon rhythm stripes.
+    const scenicLayouts={
+        MART_JELLY:'swirl', MART_METAL:'columns',MART_BOMB:'cross',MART_FINALE:'star',
+        PARK_JELLY:'arch',PARK_MOVING:'zigzag',PARK_DEFENSE:'gates',PARK_FINAL:'cup',
+        ROOM_TWICE:'iris',ROOM_DUO:'twins',ROOM_GUARD:'keyhole',ROOM_FINAL:'butterfly',
+        STUDIO_MOVE:'viewfinder',STUDIO_DOUBLE:'split',STUDIO_NG:'filmstrip',STUDIO_FINAL:'double-arc',
+        CASINO_DOUBLE:'stair',CASINO_POISON:'spiral',CASINO_TIMING:'roulette',CASINO_FINAL:'diamond',
+        FARM_PIN2:'fence',FARM_PIN3:'trident',FARM_MOVE:'slalom',FARM_FINAL:'crown',
+        CLUB_CHAIN:'bars',CLUB_SQUAT:'pulse',CLUB_FAST:'bolts',CLUB_FINAL:'wave',
+        POLICE_BARRIER:'traffic',POLICE_DUAL:'two-arena',POLICE_PRACTICAL:'precision',
+        POLICE_ENDING:'heart'
+    };
+    function negativeSpace(style,r,c,rows) {
+        const x=c-4.5, y=r-(rows-1)/2;
+        const near=(v,center,thickness)=>Math.abs(v-center)<thickness;
+        switch(style) {
+            case 'swirl': return Math.abs(Math.hypot(x,y)-2.1)<.6 ? 4 : 0;
+            case 'columns': return (c===2||c===7)?3.4:0;
+            case 'cross': return (near(x,0,.6)||near(y,0,.6))?3.2:0;
+            case 'star': return Math.abs(Math.abs(x)-Math.abs(y))<.6?3:0;
+            case 'arch': return Math.abs(y+(x*x)*.17-1)<.7?3.6:0;
+            case 'zigzag': return Math.abs(x-1.9*Math.sin(r*1.6))<.8?3.7:0;
+            case 'gates': return (Math.abs(x)>1.5&&Math.abs(x)<3.5&&r%3===1)?4:0;
+            case 'cup': return (Math.abs(x)<1.5&&r<rows*.6)?3.5:0;
+            case 'iris': return Math.abs(Math.hypot(x*.75,y)-2.3)<.65?3:0;
+            case 'twins': return Math.min(Math.abs(x-2),Math.abs(x+2))<.55?3.4:0;
+            case 'keyhole': return (Math.hypot(x,y+1)<1.5||near(x,0,.6))?3.5:0;
+            case 'butterfly': return Math.abs(Math.abs(x)*.7-Math.abs(y))<.65?3.8:0;
+            case 'viewfinder': return (Math.abs(x)>2.5&&Math.abs(y)>2)?4:0;
+            case 'split': return (Math.abs(x)<.75||Math.abs(y)<.6)?3.4:0;
+            case 'filmstrip': return (c===1||c===8||r%3===1)?3:0;
+            case 'double-arc': return Math.abs(Math.abs(x)-Math.abs(y)*.45-2.1)<.65?3.5:0;
+            case 'stair': return Math.abs(c-(r%5)*2)<.8?4:0;
+            case 'spiral': return Math.abs(Math.hypot(x,y)-(1.5+Math.atan2(y,x)))<.7?4:0;
+            case 'roulette': return Math.abs(Math.hypot(x,y)-2.8)<.6?3.7:0;
+            case 'diamond': return Math.abs(Math.abs(x)+Math.abs(y)-3.8)<.7?4:0;
+            case 'fence': return (c%3===1&&r%2===0)?4:0;
+            case 'trident': return (c===2||c===5||c===8)&&r%3===1?4:0;
+            case 'slalom': return Math.abs(x-2*Math.sin(r*.85))<.75?4:0;
+            case 'crown': return (r<=2&&Math.abs(x)>1.5)||near(y,1,.6)?3:0;
+            case 'bars': return r%3===1?3.5:0;
+            case 'pulse': return Math.abs(x-2*Math.sin(r*2))<.8?4:0;
+            case 'bolts': return Math.abs(x-((r*3)%8-4))<1?4:0;
+            case 'wave': return Math.abs(y-1.5*Math.sin(c*.9))<.7?4:0;
+            case 'traffic': return (r%3===1&&c%3===0)?4:0;
+            case 'two-arena': return Math.abs(x)<.7||Math.abs(y)<.6?4:0;
+            case 'precision': return (Math.abs(x)<1.5&&Math.abs(y)<1.5)?4:0;
+            case 'heart': return Math.pow(x*x+y*y-10,3)-20*x*x*y*y<0?3.8:0;
+            default: return 0;
+        }
+    }
+
     // Three *gimmick* prototypes, not difficulty-graded finished boards.
     // Art-directed silhouettes above remain intact; real long pieces occupy
     // two adjacent tiles and square pieces keep their own smaller hitboxes.
@@ -146,6 +201,7 @@
         const crafted=designedBoards[stage.sceneKey];
         if(crafted)return decodeDesignedBoard(stage,crafted);
         const { rows, count, stageId:n, features:f } = stage;
+        const style=scenicLayouts[stage.sceneKey];
         const random = rand(5821 + n * 7769);
         const board = Array.from({length:rows},()=>Array(10).fill(null));
         const candidates = [];
@@ -154,7 +210,7 @@
             const distance = Math.abs(c-4.5), band = (r+n)%4;
             const bias = n%5===0 ? distance*.055 : n%5===1 ? (r%2)*.11 :
                 n%5===2 ? (c%3)*.06 : n%5===3 ? Math.abs(r-rows/2)*.035 : band*.025;
-            candidates.push({r,c,rank:random()+bias});
+            candidates.push({r,c,rank:style ? negativeSpace(style,r,c,rows)+random()*.002 : random()+bias});
         }
         candidates.sort((a,b)=>a.rank-b.rank);
         const chosen = candidates.slice(0,Math.min(rows*10,count));
@@ -200,6 +256,24 @@
                 for(const q of chosen.filter(q=>Math.hypot(q.r-center.r,q.c-center.c)<=1.5).slice(0,5))
                     board[q.r][q.c].material='solid';
             }
+        }
+        if(style) {
+            // Authentic long/square pieces have collision boxes matching the art.
+            let pieces=0;
+            for(let r=0;r<rows;r++) for(let c=0;c<10;c++) {
+                const cell=board[r][c];
+                if(!cell)continue;
+                cell.colorway=(r+c+n)%2?'alt':'base';
+                const next=board[r][c+1];
+                if(next && !cell.mark && !next.mark &&
+                   next.material===cell.material && (r*17+c*13+n)%13===0) {
+                    cell.span=2;cell.size='long';board[r][c+1]=null;c++;
+                } else if((r*3+c*7+n)%5===0)cell.size='square';
+                pieces++;
+            }
+            stage.tileCount=chosen.length;
+            stage.count=pieces;
+            stage.layoutMotif=style;
         }
         return board;
     }

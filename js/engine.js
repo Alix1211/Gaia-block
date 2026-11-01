@@ -472,18 +472,19 @@ class GameEngine {
                         left:baseX-hotspots[0].x*scale,
                         // The goal is INSIDE the brick formation, painted behind
                         // intact pieces, never a detached prop below the board.
-                        top:level.sceneKey==='PARK_GOAL1'?168:716-height,
-                        width,height,scale,hotspots
+                        top:168,
+                        width,height,scale,hotspots,baseLeft:baseX-hotspots[0].x*scale
                     };
                     target.poseFrame=0;
                     target.width=96;
                     target.height=58;
                     target.y=target.goalArtwork.top+hotspots[0].y*scale;
                 }
-                if(level.sceneKey==='ROOM_REVEAL' && kind==='reflect') {
+                if((level.sceneKey.startsWith('ROOM_') || level.sceneKey.startsWith('CLUB_') ||
+                    level.sceneKey==='POLICE_PRACTICAL') && kind==='reflect') {
                     const width=236;
                     target.bodyArtwork={left:baseX-width/2,top:48,width,
-                        height:width*768/448,frame:0,hop:false};
+                        height:width*768/448,frame:0,hop:!!level.features.hop};
                     target.y=target.bodyArtwork.top+target.bodyArtwork.height*.72;
                     target.width=width*.65;
                     target.height=120;
@@ -537,6 +538,7 @@ class GameEngine {
             if(target.goalArtwork) {
                 target.poseFrame=Math.floor(this.elapsed/.24)%2;
                 const art=target.goalArtwork;
+                art.left=art.baseLeft + Math.sin(this.elapsed*1.35+target.index*2.1)*(target.moveAmp||0);
                 const focus=art.hotspots[target.poseFrame];
                 target.x=art.left+focus.x*art.scale;
                 target.y=art.top+focus.y*art.scale;
@@ -591,16 +593,18 @@ class GameEngine {
     checkStageTargetCollisions(ball,oldY) {
         if (!this.stageStats) return;
         for(const target of this.targets) {
-            if (!target.visible || target.count>=target.required) continue;
+            if (!target.visible || (target.count>=target.required && !target.bodyArtwork)) continue;
             if(this.elapsed-target.lastHit<.8) continue;
             if(target.bodyArtwork) {
                 const zone=this.bodyContact(ball,target.bodyArtwork);
                 if(!zone)continue;
-                target.lastHit=this.elapsed;target.count++;
+                target.lastHit=this.elapsed;
+                const newScore=target.count<target.required;
+                if(newScore)target.count++;
                 target.triggered=this.elapsed;target.zone=zone.name;
-                this.score+=150;
+                if(newScore)this.score+=150;
                 this.onStageEvent?.({type:'bodyHit',zone:zone.name,target});
-                this.onStageEvent?.({type:'reflect',target});
+                if(newScore)this.onStageEvent?.({type:'reflect',target});
                 this.bounceOffBody(ball,target.bodyArtwork,zone);
                 break;
             }

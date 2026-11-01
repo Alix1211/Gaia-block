@@ -179,11 +179,11 @@ class Renderer {
         if(!t.visible) return;
         const c=this.ctx,e=this.engine;
         const isDone=t.count>=t.required;
-        c.save();c.globalAlpha=isDone?.32:1;
+        c.save();c.globalAlpha=t.bodyArtwork?1:(isDone?.32:1);
         const x=t.x,y=t.y;
         const pulse=1+Math.sin(this.time*5)*.055;
         if(t.bodyArtwork) {
-            this.bodyArtwork(t.bodyArtwork,t.character,t.triggered,isDone);
+            this.bodyArtwork(t.bodyArtwork,t.character,t.triggered,false);
             c.restore();return;
         }
         if(t.kind==='pin') {

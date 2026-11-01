@@ -28,6 +28,12 @@ for(const material of ['01-jelly','02-pink-metal','03-pink-wood','04-neon','05-s
     }
 }
 const sceneKeys=new Set();
+const authored=window.GAIA_40_STAGES.filter(s=>s.layoutMotif);
+assert.equal(authored.length,32,'the remaining 32 layouts must be designed');
+assert.equal(window.GAIA_40_STAGES.find(s=>s.sceneKey==='PARK_FINAL').objectives.soccer.length,2,
+    'park final must feature two distinct players');
+assert.deepEqual(window.GAIA_40_STAGES.find(s=>s.sceneKey==='ROOM_FINAL').objectives.reflect,[4,4],
+    'room final matches authored two players, four hits each');
 const sceneIndex=key=>game.levelsConfig.levels.findIndex(stage=>stage.sceneKey===key);
 const loadScene=key=>{
     const index=sceneIndex(key);

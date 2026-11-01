@@ -25,7 +25,7 @@
         $('fullscreenButton').textContent=active?'⤡':'⛶';
         $('fullscreenButton').setAttribute('aria-label',active?'전체화면 해제':'전체화면 전환');
     });
-    for(const id of ['startButton','elasticDemoButton','goalDemoButton','revealDemoButton','hopDemoButton']) {
+    for(const id of ['fullTourButton','startButton','elasticDemoButton','goalDemoButton','revealDemoButton','hopDemoButton']) {
         $(id)?.addEventListener('click',()=>{
             if(window.matchMedia?.('(orientation: landscape)')?.matches && !document.fullscreenElement)
                 toggleFullscreen();
@@ -38,8 +38,8 @@
     if (window.GAIA_40_STAGES?.length===40) {
         engine.levelsConfig.levels=window.GAIA_40_STAGES;
     }
-    // This build is a three-gimmick playtest, not the unbalanced 40-round tour.
-    // Keep all forty scene definitions and saved progress intact for later.
+    // The original forty-round story mode is playable; separate 3/6-gimmick
+    // tours remain available for direct design/physics comparison.
     const prototypeScenes=['PARK_GOAL1','ROOM_REVEAL','CASINO_BET'];
     const prototypeIndices=prototypeScenes.map(scene=>
         engine.levelsConfig.levels.findIndex(level=>level.sceneKey===scene));
@@ -212,8 +212,7 @@
         const matching=event.type===triggerByScene[scene] ||
             (scene==='POLICE_DUAL' && event.type==='soccer');
         if(stageDialogueShown||!matching) return;
-        const finishEvents=new Set(['PARK_JELLY','PARK_DEFENSE','STUDIO_DOUBLE',
-            'STUDIO_NG','STUDIO_FINAL','CASINO_FINAL','FARM_PIN2','POLICE_PRACTICAL']);
+        const finishEvents=new Set(['PARK_JELLY','PARK_DEFENSE','STUDIO_NG','STUDIO_FINAL','CASINO_FINAL','FARM_PIN2','POLICE_PRACTICAL']);
         if(finishEvents.has(scene) && engine.targets.some(t=>t.count<t.required)) return;
         if(scene==='PARK_FINAL' && event.target?.count<2) return;
         if(scene==='POLICE_DUAL' && engine.targets.some(t=>t.count<t.required)) return;
@@ -244,9 +243,8 @@
         oldState = 'menu';
         setStageVisuals();
         hide('pauseScreen'); hide('messageScreen');hide('dialogueScreen');hide('settingsScreen');show('menuScreen');
-        // Old 40-round progress remains saved; it is intentionally not a
-        // playable path until its scene rules and difficulty are reviewed.
-        $('continueButton').hidden = true;
+        $('continueButton').hidden = progress.unlocked===0;
+        $('continueButton').textContent = `${String(progress.unlocked+1).padStart(2,'0')}번부터 이어하기 ▶`;
         $('reaction').textContent = '오늘은 살살 부탁드려요…♡';
         $('heroImage').src = faces.idle;
         $('heroImage').dataset.mode = 'idle';
@@ -322,6 +320,7 @@
         window.GaiaSound?.resume();
     }
 
+    $('fullTourButton').addEventListener('click',()=>begin(0,false,false,false));
     $('startButton').addEventListener('click',()=>begin(prototypeIndices[0],true,true));
     $('elasticDemoButton').addEventListener('click',()=>begin(elasticIndices[0],true,false,true));
     $('goalDemoButton').addEventListener('click',()=>{
@@ -362,7 +361,7 @@
             react('이번에도 잘 부탁드립니다♡','idle',900,true);
             try { window.GaiaSound?.setStage(engine.currentLevel); } catch (_) { /* optional audio */ }
             showStageIntro();
-        } else begin(prototypeIndices[0]);
+        } else begin(engine.currentLevel,false,false,false);
     });
     $('dialogueStart').addEventListener('click',()=>{
         hide('dialogueScreen');
@@ -459,5 +458,5 @@
     engine.start();
     setStageVisuals();
     setDialogueMode(dialogueMode);
-    $('continueButton').hidden=true;
+    $('continueButton').hidden=progress.unlocked===0;
 })();
