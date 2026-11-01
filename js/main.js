@@ -2,6 +2,35 @@
 (async function () {
     'use strict';
     const $ = id => document.getElementById(id);
+    // Android/desktop fullscreen is requested only from a real click.
+    // The landscape CSS itself remains usable if the browser disallows it.
+    function toggleFullscreen() {
+        try {
+            if(document.fullscreenElement) {
+                const exit=document.exitFullscreen?.();
+                exit?.catch?.(()=>{});
+            } else {
+                const element=document.documentElement;
+                const request=element?.requestFullscreen||element?.webkitRequestFullscreen;
+                if(request) {
+                    const opened=request.call(element,{navigationUI:'hide'});
+                    opened?.catch?.(()=>{});
+                }
+            }
+        } catch(_) { /* Some Android WebViews forbid immersive fullscreen. */ }
+    }
+    $('fullscreenButton')?.addEventListener('click',toggleFullscreen);
+    document.addEventListener?.('fullscreenchange',()=>{
+        const active=Boolean(document.fullscreenElement);
+        $('fullscreenButton').textContent=active?'⤡':'⛶';
+        $('fullscreenButton').setAttribute('aria-label',active?'전체화면 해제':'전체화면 전환');
+    });
+    for(const id of ['startButton','elasticDemoButton','goalDemoButton','revealDemoButton','hopDemoButton']) {
+        $(id)?.addEventListener('click',()=>{
+            if(window.matchMedia?.('(orientation: landscape)')?.matches && !document.fullscreenElement)
+                toggleFullscreen();
+        });
+    }
     const canvas = $('gameCanvas');
     const engine = new GameEngine(canvas);
     await engine.loadConfigs();
