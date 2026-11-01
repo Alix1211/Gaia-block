@@ -1,0 +1,55 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'android/**'
+      - 'tools/prepare-android-assets.mjs'
+      - 'index.html'
+      - 'css/**'
+      - 'js/**'
+      - 'assets/**'
+      - '.github/workflows/build-android.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout game
+        uses: actions/checkout@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Cache development signing certificate across APK upgrades
+        uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: gaia-heart-breaker-debug-key-v1
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Package original offline game into Android assets
+        run: node tools/prepare-android-assets.mjs
+      - name: Assemble installable debug APK
+        working-directory: android
+        run: gradle --no-daemon :app:assembleDebug
+      - name: Name APK
+        run: |
+          mkdir -p dist
+          cp android/app/build/outputs/apk/debug/app-debug.apk dist/GAIA_Heart_Breaker_v0.16.1_Native_Haptics.apk
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: gaia-heart-breaker-apk
+          path: dist/GAIA_Heart_Breaker_v0.16.1_Native_Haptics.apk
+          if-no-files-found: error
+          retention-days: 30

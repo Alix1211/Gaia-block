@@ -1,0 +1,24 @@
+plugins {
+    id 'com.android.application'
+}
+android {
+    namespace 'com.gaiacity.heartbreaker'
+    compileSdk 35
+    defaultConfig {
+        applicationId 'com.gaiacity.heartbreaker'
+        minSdk 24
+        targetSdk 35
+        versionCode 1
+        versionName '0.16.1'
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+    packaging {
+        resources {
+            excludes += ['/META-INF/{AL2.0,LGPL2.1}']
+        }
+    }
+}

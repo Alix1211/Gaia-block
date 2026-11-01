@@ -134,6 +134,13 @@
             if(timer){clearInterval(timer);timer=null;}
             if(urls.length>1)timer=setInterval(()=>this.showNext(),options.slideSeconds*1000);
         },
+        loadUrls(nativeUrls){
+            const safe=Array.from(nativeUrls||[]).filter(v=>typeof v==='string' && v.startsWith('https://gaia.local/bg/'));
+            if(!safe.length){if(status)status.textContent='선택한 폴더에 사진이 없습니다.';return;}
+            this.clear(false); urls=safe.slice(0,450);
+            shuffle();this.showNext();this.restart();
+            if(status)status.textContent=urls.length+'장 · 기기 폴더 저장됨 · '+options.slideSeconds+'초 간격';
+        },
         loadFiles(files){
             const pictures=Array.from(files||[]).filter(f=>
                 (f.type&&f.type.startsWith('image/'))||/\.(png|jpe?g|webp|gif|bmp|avif)$/i.test(f.name||''));
@@ -149,7 +156,7 @@
         clear(showMessage=true){
             if(timer)clearInterval(timer);timer=null;
             for(const el of layers){el?.classList.remove('slide-active');}
-            for(const url of urls)URL.revokeObjectURL(url);
+            for(const url of urls)if(url.startsWith('blob:'))URL.revokeObjectURL(url);
             urls=[];randomOrder=[];orderAt=0;currentLayer=-1;
             if(showMessage&&status)status.textContent='기본 게임 배경 사용 중';
         },
@@ -160,7 +167,12 @@
         }
     };
     window.GaiaSlides=slides;
-    $('backgroundFolderButton')?.addEventListener('click',()=>$('backgroundFolderInput')?.click());
+    // Native picker grants durable read access through Android's Storage Access Framework.
+    window.GaiaNativeFolder={onFiles(fileUrls){slides.loadUrls(fileUrls);}};
+    $('backgroundFolderButton')?.addEventListener('click',()=>{
+        if(window.GaiaNativeFiles?.selectFolder)window.GaiaNativeFiles.selectFolder();
+        else $('backgroundFolderInput')?.click();
+    });
     $('backgroundFilesButton')?.addEventListener('click',()=>$('backgroundFilesInput')?.click());
     $('backgroundFolderInput')?.addEventListener('change',e=>{
         slides.loadFiles(e.target.files);e.target.value='';
@@ -168,7 +180,9 @@
     $('backgroundFilesInput')?.addEventListener('change',e=>{
         slides.loadFiles(e.target.files);e.target.value='';
     });
-    $('backgroundDefaultButton')?.addEventListener('click',()=>slides.clear());
+    $('backgroundDefaultButton')?.addEventListener('click',()=>{
+        slides.clear();window.GaiaNativeFiles?.clearFolder?.();
+    });
     $('slideSeconds')?.addEventListener('input',e=>{
         $('slideSecondsValue').textContent=String(e.target.value)+'초';
         slides.setInterval(e.target.value);

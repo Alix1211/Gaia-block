@@ -5,6 +5,7 @@
     // Android/desktop fullscreen is requested only from a real click.
     // The landscape CSS itself remains usable if the browser disallows it.
     function toggleFullscreen() {
+        if(window.GaiaNativeUI?.toggleFullscreen){window.GaiaNativeUI.toggleFullscreen();return;}
         try {
             if(document.fullscreenElement) {
                 const exit=document.exitFullscreen?.();
