@@ -141,7 +141,8 @@ body { background:#f4b8d9; color:#fff; font-family:'Malgun Gothic','Apple SD Got
     position:relative;
     top:auto;right:auto;left:auto;
     grid-column:1;grid-row:1;
-    z-index:4;
+    /* Keep rail buttons and goals from the board layer above this backdrop. */
+    z-index:0;
     height:100%;width:100%;min-width:0;
     display:flex;flex-direction:column;
     align-items:stretch;justify-content:flex-start;
